@@ -13,7 +13,7 @@ Date: 2026-10-16 · Status: **complete, awaiting approval to start Phase 2**
 | App shell, home, friendly error and not-found pages | `src/app/` |
 | Workflow constants (25 enums, 9 stages, default weights, semester defaults) and status labels | `src/domain/` |
 | `StatusChip` component (text + icon, not colour only) | `src/components/StatusChip.tsx` |
-| Foundation migration: `app` helper schema, 25 enum types, `raise_error`, `guard_protected_columns`, `prevent_mutation`, `set_updated_at`, append-only `audit_log` with generic audit trigger | `supabase/migrations/20261016000000_foundation.sql` |
+| Foundation migration: `app` helper schema, 25 enum types, `raise_error`, `guard_protected_columns`, `prevent_mutation`, `set_updated_at`, append-only `audit_log` with generic audit trigger | `supabase/migrations/20261016162119_foundation.sql` |
 | Database test harness (throwaway Postgres + Supabase shim) | `scripts/db-test.sh`, `supabase/tests/` |
 | Bundle secret scan (SEC-11) | `scripts/scan-bundle.mjs` (runs inside `pnpm build`) |
 | Supabase local config (sign-up disabled, password rules) | `supabase/config.toml` |
