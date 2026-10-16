@@ -21,6 +21,17 @@ A web application for the HOD, faculty and students to track undergraduate resea
 | [Deployment & security](docs/DEPLOYMENT_AND_SECURITY.md)  | Environments, secrets, backups, monitoring                          |
 | [AI features](docs/AI_FEATURE_SPEC.md)                    | Future, optional AI assistance and its limits                       |
 
+## Supabase project
+
+| | |
+|---|---|
+| Project | `mini-project-tracker` (ref `utkekzbkdtcbmupbxmpp`) |
+| Region | ap-south-1 (Mumbai) |
+| Plan | Free (upgrade before production — see DEPLOYMENT_AND_SECURITY.md §7) |
+| API URL | `https://utkekzbkdtcbmupbxmpp.supabase.co` |
+
+Put the URL and the **publishable** key (Dashboard → Project Settings → API Keys) in `.env.local`.
+
 ## Getting started
 
 Requirements: Node 22+, pnpm 10, and PostgreSQL 15+ server binaries (for the database tests).
