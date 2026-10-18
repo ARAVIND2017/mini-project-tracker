@@ -22,6 +22,7 @@ import type { Enums } from '@/lib/database.types';
 import { useActiveContext } from '../auth/authContext';
 import { useFacultyOptions } from '../projects/useFacultyOptions';
 import { SemesterNav } from '../semesters/SemesterNav';
+import { StaffOnly } from '../semesters/StaffOnly';
 import { useProfileNames } from '../semesters/useSemesterNames';
 
 const TYPE_LABEL: Record<Enums<'assignment_type'>, string> = {
@@ -29,7 +30,7 @@ const TYPE_LABEL: Record<Enums<'assignment_type'>, string> = {
   co_reviewer: 'Co-reviewer',
 };
 const STATUS_LABEL: Record<Enums<'request_status'>, string> = {
-  pending: '◐ Waiting for the HOD',
+  pending: '• Waiting for the HOD',
   approved: '✓ Approved',
   rejected: '✕ Rejected',
   cancelled: '○ Cancelled',
@@ -42,6 +43,14 @@ function askReason(prompt: string): string | null {
 }
 
 export function AssignmentsPage() {
+  return (
+    <StaffOnly>
+      <AssignmentsPageContent />
+    </StaffOnly>
+  );
+}
+
+function AssignmentsPageContent() {
   const { semesterId = '' } = useParams();
   const ctx = useActiveContext();
   const hod = isHod(ctx);

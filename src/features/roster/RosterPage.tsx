@@ -16,16 +16,25 @@ import {
 import type { Enums } from '@/lib/database.types';
 import { useActiveContext } from '../auth/authContext';
 import { SemesterNav } from '../semesters/SemesterNav';
+import { StaffOnly } from '../semesters/StaffOnly';
 import { RosterImport } from './RosterImport';
 
 const STATUS: Record<Enums<'roster_status'>, string> = {
   empty: '○ Empty slot',
-  pending_invite: '◐ No account yet',
+  pending_invite: '• No account yet',
   active: '✓ Account active',
   withdrawn: '■ Withdrawn',
 };
 
 export function RosterPage() {
+  return (
+    <StaffOnly>
+      <RosterPageContent />
+    </StaffOnly>
+  );
+}
+
+function RosterPageContent() {
   const { semesterId = '' } = useParams();
   const ctx = useActiveContext();
   const queryClient = useQueryClient();
@@ -225,7 +234,7 @@ export function RosterPage() {
                             {canWithdraw &&
                               (s.status === 'pending_invite' || s.status === 'active') && (
                                 <Button
-                                  variant="danger"
+                                  variant="secondary"
                                   disabled={action.isPending}
                                   onClick={() => {
                                     const reason = window.prompt(

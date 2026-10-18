@@ -11,7 +11,7 @@ const toneClasses: Record<Tone, string> = {
 // Status must never be conveyed by colour alone (UI_UX_SPEC §1).
 const toneIcons: Record<Tone, string> = {
   neutral: '○',
-  info: '◐',
+  info: '•',
   warning: '!',
   success: '✓',
   danger: '✕',

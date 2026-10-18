@@ -4,6 +4,7 @@ import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { SetPasswordPage } from '@/features/auth/SetPasswordPage';
+import { LoadingState } from '@/components/ui';
 import { SystemStatusPage } from '@/features/status/SystemStatusPage';
 import { AppShell } from './AppShell';
 import { HomePage } from './HomePage';
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     errorElement: <RouteError />,
+    hydrateFallbackElement: <LoadingState />,
     children: [
       { path: 'login', element: <LoginPage /> },
       { path: 'forgot-password', element: <ForgotPasswordPage /> },

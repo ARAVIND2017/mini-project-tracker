@@ -7,6 +7,7 @@ import { hasAdminPermission, isHod } from '@/domain/context';
 import { assignGuide, getSemester, listDomains, listProjects, setProjectDomain } from '@/lib/api';
 import { useActiveContext } from '../auth/authContext';
 import { SemesterNav } from '../semesters/SemesterNav';
+import { StaffOnly } from '../semesters/StaffOnly';
 import { useFacultyOptions } from './useFacultyOptions';
 
 const stageName = (key: string | null) => {
@@ -16,6 +17,14 @@ const stageName = (key: string | null) => {
 };
 
 export function ProjectsPage() {
+  return (
+    <StaffOnly>
+      <ProjectsPageContent />
+    </StaffOnly>
+  );
+}
+
+function ProjectsPageContent() {
   const { semesterId = '' } = useParams();
   const ctx = useActiveContext();
   const queryClient = useQueryClient();

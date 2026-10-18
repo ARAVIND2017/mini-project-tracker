@@ -18,7 +18,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:db": "bash scripts/db-test.sh",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm build"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm build",
+    "stack:start": "bash scripts/local-stack/start.sh",
+    "stack:stop": "bash scripts/local-stack/stop.sh",
+    "test:e2e": "LOCAL_ANON_KEY=$(cat .local-stack/anon.jwt) playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
