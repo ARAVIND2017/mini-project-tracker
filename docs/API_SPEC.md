@@ -61,12 +61,15 @@ Who may call each function is listed in **Auth**. Every function re-checks the p
 
 | Function | Arguments | Returns | Auth / rules |
 |---|---|---|---|
-| `app_create_semester` | name, academic_year, settings jsonb | semester id | HOD/admin. Creates the default milestones and task templates from the 16-week template |
+| `app_create_semester` | name, academic_year, settings jsonb | semester id | HOD/admin. Unknown or invalid settings → `VALIDATION`. (Phase 5 adds the default milestones and task templates.) |
+| `app_update_semester` | semester_id, settings jsonb | void | HOD/admin. Same settings keys as create; closed semesters → `INVALID_STATE` |
 | `app_copy_semester_config` | from_semester, to_semester | void | Copies domains, criteria, milestones, templates — not people |
-| `app_activate_semester` / `app_close_semester` | semester_id | void | Activation requires a start date, a lead, and at least 1 domain |
+| `app_activate_semester` / `app_close_semester` | semester_id | void | Activation requires a start date and a lead (the domain requirement is added in Phase 3); only active semesters can be closed |
 | `app_set_lead` | semester_id, user_id | void | HOD only. Demotes the previous lead to faculty; re-points `reports_to` |
-| `app_set_membership` | semester_id, user_id, role, is_active | void | HOD only |
-| `app_grant_system_role` / `app_revoke_system_role` | user_id, role, permissions[] | void | HOD only; the last HOD cannot be revoked |
+| `app_set_membership` | semester_id, user_id, role, is_active | membership id | HOD; an admin with `manage_users` may only add *new* faculty memberships. The HOD needs no membership (`VALIDATION`) |
+| `app_set_user_active` | user_id, is_active, reason | void | HOD or admin with `manage_users`; not yourself; only the HOD may change HOD/admin accounts; the last active HOD cannot be deactivated. Called by the `admin-users` Edge Function, which also bans/unbans sign-in |
+| `app_grant_system_role` / `app_revoke_system_role` | user_id, role, permissions[] | void | HOD only. Revoking is a soft revoke (`revoked_at`), re-granting restores the row; the last active HOD cannot be revoked |
+| `app.bootstrap_hod(email)` | email | user id | **Not callable through the API.** Run once from the Supabase SQL editor to make the first HOD |
 | `app_import_roster` | semester_id, rows jsonb[] `{slot_no, institution_id?, full_name?, email?, drive_folder_url?, domain_name?}`, dry_run bool | report jsonb (created / updated / errors per row) | HOD/admin. Stores the values exactly as given; empty rows become `empty` slots; `CAPACITY_EXCEEDED` if over capacity |
 | `app_generate_tasks` | semester_id, project_id? , regenerate bool | count | HOD/admin. Creates tasks from the templates (with domain overrides) and computes `due_at` |
 

@@ -51,6 +51,8 @@ Rules:
 - [ ] RLS enabled on **every** table in `public` (also checked by a CI test that queries `pg_class.relrowsecurity`).
 - [ ] No policies for `anon`.
 - [ ] `security definer` functions have `set search_path = ''`, check `auth.uid()`, and do their own permission checks.
+- [ ] No function is executable by `anon`, and only the allow-listed policy helpers in `app` are executable by `authenticated`. Supabase grants EXECUTE on every new function by default; migration `20261018081654_lock_internal_functions` removes that default, and `supabase/tests/998_function_privileges.sql` checks it.
+- [ ] Supabase advisor warning *“Signed-in users can execute SECURITY DEFINER function”* for `public.app_*` RPCs is **expected**: these are the workflow API, and each one checks permissions itself.
 - [ ] Views use `security_invoker = true`.
 - [ ] `audit_log`: only `select` for `authenticated` (filtered by policy); no update or delete for anyone except the database owner.
 - [ ] Supabase Security Advisor and Performance Advisor show no errors before each production release.

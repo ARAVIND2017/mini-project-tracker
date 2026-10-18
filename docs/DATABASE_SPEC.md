@@ -64,7 +64,7 @@ One row per auth user, created by a trigger on `auth.users` insert.
 Read: the user themselves; faculty-level users of any semester the user belongs to. Write: the user (full_name, designation only); HOD.
 
 ### `system_roles`
-`user_id uuid FK profiles`, `role system_role`, `granted_by`, `granted_at`, `admin_permissions text[]` (for `admin` only: `manage_users`, `manage_config`, `manage_roster`). Unique (user_id, role). A trigger prevents removing the last `hod`. Read: HOD, admin, the user. Write: HOD only.
+`user_id uuid FK profiles`, `role system_role`, `granted_by`, `granted_at`, `admin_permissions text[]` (for `admin` only: `manage_users`, `manage_config`, `manage_roster`), `revoked_at`, `revoked_by`. Unique (user_id, role). **Roles are never deleted:** revoking sets `revoked_at`/`revoked_by`, and re-granting clears them. Every permission check ignores revoked rows. A trigger prevents revoking (or deleting) the last active `hod`. Read: HOD, admin, the user. Write: HOD only, through RPCs.
 
 ### `semesters`
 | Column | Type | Notes |

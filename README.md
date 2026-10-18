@@ -2,7 +2,7 @@
 
 A web application for the HOD, faculty and students to track undergraduate research mini-projects. It covers every step from choosing a research paper to final panel sign-off, and progress is based on evidence and faculty approvals.
 
-- **Status:** Phase 1 (foundation). See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
+- **Status:** Phase 2 (authentication and faculty hierarchy) is complete. See [`docs/reports/PHASE_2_REPORT.md`](docs/reports/PHASE_2_REPORT.md) for the one-time Supabase setup steps, and [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for the plan.
 - **Stack:** React + TypeScript + Tailwind (Vite) · Supabase (Postgres, Auth, Row-Level Security, Edge Functions).
 
 ## Planning documents
@@ -23,12 +23,12 @@ A web application for the HOD, faculty and students to track undergraduate resea
 
 ## Supabase project
 
-| | |
-|---|---|
-| Project | `mini-project-tracker` (ref `utkekzbkdtcbmupbxmpp`) |
-| Region | ap-south-1 (Mumbai) |
-| Plan | Free (upgrade before production — see DEPLOYMENT_AND_SECURITY.md §7) |
-| API URL | `https://utkekzbkdtcbmupbxmpp.supabase.co` |
+|         |                                                                      |
+| ------- | -------------------------------------------------------------------- |
+| Project | `mini-project-tracker` (ref `utkekzbkdtcbmupbxmpp`)                  |
+| Region  | ap-south-1 (Mumbai)                                                  |
+| Plan    | Free (upgrade before production — see DEPLOYMENT_AND_SECURITY.md §7) |
+| API URL | `https://utkekzbkdtcbmupbxmpp.supabase.co`                           |
 
 Put the URL and the **publishable** key (Dashboard → Project Settings → API Keys) in `.env.local`.
 
@@ -64,7 +64,8 @@ src/components/       reusable UI components
 src/domain/           workflow constants and business logic (mirrors the SQL enums)
 src/features/         feature screens
 src/lib/              Supabase client, environment validation
-supabase/migrations/  database schema, RLS, workflow functions (append-only)
+supabase/migrations/  database schema, RLS, workflow functions (append-only; file versions match Supabase)
+supabase/functions/   Edge Functions (admin-users: invites and account deactivation)
 supabase/tests/       SQL tests and the local test shim
 scripts/              developer scripts
 ```

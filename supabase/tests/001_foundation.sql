@@ -68,8 +68,8 @@ select tests.assert_eq((select status::text from public.t_fixture where id = :'f
 select tests.pass('guard_protected_columns');
 
 -- Audit log -------------------------------------------------------------------
-select tests.assert_raises($$select count(*) from public.audit_log$$,
-  'permission denied%', 'authenticated cannot read audit_log before Phase 2 policies');
+select tests.assert_eq((select count(*)::int from public.audit_log), 0,
+  'ordinary users see no audit entries (RLS; HOD/admin policy added in Phase 2)');
 select tests.reset();
 
 select tests.assert_eq(

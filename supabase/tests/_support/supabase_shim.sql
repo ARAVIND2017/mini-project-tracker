@@ -51,3 +51,7 @@ grant usage on schema public to anon, authenticated, service_role;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+-- Supabase also grants EXECUTE on new functions in EVERY schema to the API roles
+-- (global default privileges for the postgres role). Mirror it so tests catch
+-- helper functions that forget to revoke it.
+alter default privileges grant all on functions to anon, authenticated, service_role;
