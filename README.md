@@ -2,7 +2,7 @@
 
 A web application for the HOD, faculty and students to track undergraduate research mini-projects. It covers every step from choosing a research paper to final panel sign-off, and progress is based on evidence and faculty approvals.
 
-- **Status:** Phase 2 (authentication and faculty hierarchy) is complete. See [`docs/reports/PHASE_2_REPORT.md`](docs/reports/PHASE_2_REPORT.md) for the one-time Supabase setup steps, and [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for the plan.
+- **Status:** Phase 3 (students, domains and assignments) is complete. See [`docs/reports/PHASE_3_REPORT.md`](docs/reports/PHASE_3_REPORT.md); one-time Supabase setup steps are in [`docs/reports/PHASE_2_REPORT.md`](docs/reports/PHASE_2_REPORT.md). Plan: [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
 - **Stack:** React + TypeScript + Tailwind (Vite) · Supabase (Postgres, Auth, Row-Level Security, Edge Functions).
 
 ## Planning documents

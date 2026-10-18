@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
-import { Alert, Button, Card, LoadingState, PageHeader } from '@/components/ui';
+import { useParams } from 'react-router';
+import { Alert, Button, Card, LoadingState } from '@/components/ui';
 import { hasAdminPermission, isHod, ROLE_LABELS } from '@/domain/context';
 import {
   getSemester,
@@ -13,6 +13,7 @@ import {
   type Member,
 } from '@/lib/api';
 import { useActiveContext, useAuth } from '../auth/authContext';
+import { SemesterNav } from '../semesters/SemesterNav';
 import { InviteFacultyForm } from './InviteFacultyForm';
 
 const ROLE_ORDER = { lead_faculty: 0, faculty: 1, student: 2 } as const;
@@ -76,17 +77,10 @@ export function PeoplePage() {
 
   return (
     <div>
-      <PageHeader
-        title="People & roles"
-        description={
-          <>
-            <Link to={`/semesters/${semesterId}`} className="underline">
-              {semester.data.name}
-            </Link>{' '}
-            · Lead faculty: {lead?.profile?.full_name ?? 'not appointed yet'}
-          </>
-        }
-      />
+      <SemesterNav />
+      <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+        Lead faculty: <strong>{lead?.profile?.full_name ?? 'not appointed yet'}</strong>
+      </p>
 
       {message && (
         <div className="mb-4">
@@ -188,8 +182,7 @@ export function PeoplePage() {
       </Card>
 
       <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
-        Students are added from the roster in the next phase. Every change here is recorded in the
-        audit log.
+        Students are added on the Roster tab. Every change here is recorded in the audit log.
       </p>
     </div>
   );

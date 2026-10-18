@@ -221,6 +221,590 @@ export type Database = {
           },
         ];
       };
+      assignment_requests: {
+        Row: {
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decision_note: string | null;
+          faculty_id: string;
+          id: string;
+          project_id: string;
+          reason: string;
+          requested_by: string;
+          status: Database['public']['Enums']['request_status'];
+          type: Database['public']['Enums']['assignment_type'];
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          faculty_id: string;
+          id?: string;
+          project_id: string;
+          reason: string;
+          requested_by: string;
+          status?: Database['public']['Enums']['request_status'];
+          type: Database['public']['Enums']['assignment_type'];
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          faculty_id?: string;
+          id?: string;
+          project_id?: string;
+          reason?: string;
+          requested_by?: string;
+          status?: Database['public']['Enums']['request_status'];
+          type?: Database['public']['Enums']['assignment_type'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'assignment_requests_decided_by_fkey';
+            columns: ['decided_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_requests_faculty_id_fkey';
+            columns: ['faculty_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_requests_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_requests_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_requests_requested_by_fkey';
+            columns: ['requested_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      domains: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          semester_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          semester_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          semester_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'domains_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      evaluation_criteria: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          domain_id: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          domain_id: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          domain_id?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'evaluation_criteria_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      faculty_expertise: {
+        Row: {
+          created_at: string;
+          domain_id: string;
+          id: string;
+          is_active: boolean;
+          semester_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          domain_id: string;
+          id?: string;
+          is_active?: boolean;
+          semester_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          domain_id?: string;
+          id?: string;
+          is_active?: boolean;
+          semester_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'faculty_expertise_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'faculty_expertise_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'faculty_expertise_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      project_reviewers: {
+        Row: {
+          added_by: string | null;
+          added_via_request: string | null;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          project_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          added_by?: string | null;
+          added_via_request?: string | null;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          project_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          added_by?: string | null;
+          added_via_request?: string | null;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          project_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'project_reviewers_added_by_fkey';
+            columns: ['added_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reviewers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reviewers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reviewers_request_fkey';
+            columns: ['added_via_request'];
+            isOneToOne: false;
+            referencedRelation: 'assignment_requests';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reviewers_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      project_stages: {
+        Row: {
+          approved_at: string | null;
+          approved_by: string | null;
+          exception_reason: string | null;
+          project_id: string;
+          stage_key: Database['public']['Enums']['stage_key'];
+          status: Database['public']['Enums']['stage_status'];
+          updated_at: string;
+        };
+        Insert: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          exception_reason?: string | null;
+          project_id: string;
+          stage_key: Database['public']['Enums']['stage_key'];
+          status?: Database['public']['Enums']['stage_status'];
+          updated_at?: string;
+        };
+        Update: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          exception_reason?: string | null;
+          project_id?: string;
+          stage_key?: Database['public']['Enums']['stage_key'];
+          status?: Database['public']['Enums']['stage_status'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'project_stages_approved_by_fkey';
+            columns: ['approved_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_stages_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_stages_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      projects: {
+        Row: {
+          blocked: boolean;
+          blocked_at: string | null;
+          blocked_by: string | null;
+          blocked_reason: string | null;
+          completed_at: string | null;
+          created_at: string;
+          domain_id: string | null;
+          guide_id: string | null;
+          id: string;
+          is_completed: boolean;
+          semester_id: string;
+          student_id: string;
+          title: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          blocked?: boolean;
+          blocked_at?: string | null;
+          blocked_by?: string | null;
+          blocked_reason?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          domain_id?: string | null;
+          guide_id?: string | null;
+          id?: string;
+          is_completed?: boolean;
+          semester_id: string;
+          student_id: string;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          blocked?: boolean;
+          blocked_at?: string | null;
+          blocked_by?: string | null;
+          blocked_reason?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          domain_id?: string | null;
+          guide_id?: string | null;
+          id?: string;
+          is_completed?: boolean;
+          semester_id?: string;
+          student_id?: string;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_blocked_by_fkey';
+            columns: ['blocked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_guide_id_fkey';
+            columns: ['guide_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: true;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      review_authorizations: {
+        Row: {
+          created_at: string;
+          faculty_id: string;
+          granted_by: string;
+          id: string;
+          note: string | null;
+          project_id: string;
+          revoked_at: string | null;
+          revoked_by: string | null;
+          valid_until: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          faculty_id: string;
+          granted_by: string;
+          id?: string;
+          note?: string | null;
+          project_id: string;
+          revoked_at?: string | null;
+          revoked_by?: string | null;
+          valid_until?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          faculty_id?: string;
+          granted_by?: string;
+          id?: string;
+          note?: string | null;
+          project_id?: string;
+          revoked_at?: string | null;
+          revoked_by?: string | null;
+          valid_until?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'review_authorizations_faculty_id_fkey';
+            columns: ['faculty_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_authorizations_granted_by_fkey';
+            columns: ['granted_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_authorizations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_authorizations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_authorizations_revoked_by_fkey';
+            columns: ['revoked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      student_drive_folders: {
+        Row: {
+          created_at: string;
+          id: string;
+          student_id: string;
+          updated_at: string;
+          url: string;
+          week_no: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          student_id: string;
+          updated_at?: string;
+          url: string;
+          week_no: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          student_id?: string;
+          updated_at?: string;
+          url?: string;
+          week_no?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'student_drive_folders_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      students: {
+        Row: {
+          created_at: string;
+          drive_folder_url: string | null;
+          email: string | null;
+          full_name: string | null;
+          id: string;
+          institution_id: string | null;
+          semester_id: string;
+          slot_no: number;
+          status: Database['public']['Enums']['roster_status'];
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          drive_folder_url?: string | null;
+          email?: string | null;
+          full_name?: string | null;
+          id?: string;
+          institution_id?: string | null;
+          semester_id: string;
+          slot_no: number;
+          status?: Database['public']['Enums']['roster_status'];
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          drive_folder_url?: string | null;
+          email?: string | null;
+          full_name?: string | null;
+          id?: string;
+          institution_id?: string | null;
+          semester_id?: string;
+          slot_no?: number;
+          status?: Database['public']['Enums']['roster_status'];
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'students_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'students_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       system_roles: {
         Row: {
           admin_permissions: string[];
@@ -278,9 +862,164 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      v_projects: {
+        Row: {
+          blocked: boolean | null;
+          co_reviewer_names: string[] | null;
+          current_stage: Database['public']['Enums']['stage_key'] | null;
+          domain_id: string | null;
+          domain_name: string | null;
+          guide_id: string | null;
+          guide_name: string | null;
+          id: string | null;
+          institution_id: string | null;
+          is_completed: boolean | null;
+          pending_requests: number | null;
+          roster_status: Database['public']['Enums']['roster_status'] | null;
+          semester_id: string | null;
+          slot_no: number | null;
+          student_email: string | null;
+          student_id: string | null;
+          student_name: string | null;
+          student_user_id: string | null;
+          title: string | null;
+          updated_at: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_guide_id_fkey';
+            columns: ['guide_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: true;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'students_user_id_fkey';
+            columns: ['student_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Functions: {
+      app_add_empty_slots: {
+        Args: { p_semester_id: string; p_up_to_slot: number };
+        Returns: number;
+      };
+      app_assign_guide: {
+        Args: { p_faculty_id: string; p_note?: string; p_project_id: string };
+        Returns: undefined;
+      };
+      app_cancel_assignment_request: {
+        Args: { p_request_id: string };
+        Returns: undefined;
+      };
+      app_decide_assignment_request: {
+        Args: { p_approve: boolean; p_note?: string; p_request_id: string };
+        Returns: undefined;
+      };
+      app_grant_review_authorization: {
+        Args: {
+          p_faculty_id: string;
+          p_note?: string;
+          p_project_id: string;
+          p_valid_until?: string;
+        };
+        Returns: string;
+      };
+      app_import_roster: {
+        Args: { p_dry_run?: boolean; p_rows: Json; p_semester_id: string };
+        Returns: Json;
+      };
+      app_link_student: {
+        Args: { p_student_id: string; p_user_id: string };
+        Returns: undefined;
+      };
+      app_remove_co_reviewer: {
+        Args: { p_faculty_id: string; p_note?: string; p_project_id: string };
+        Returns: undefined;
+      };
+      app_request_assignment: {
+        Args: {
+          p_faculty_id: string;
+          p_project_id: string;
+          p_reason: string;
+          p_type: Database['public']['Enums']['assignment_type'];
+        };
+        Returns: string;
+      };
+      app_revoke_review_authorization: {
+        Args: { p_authorization_id: string };
+        Returns: undefined;
+      };
+      app_set_expertise: {
+        Args: { p_domain_ids: string[]; p_semester_id: string; p_user_id?: string };
+        Returns: undefined;
+      };
+      app_set_my_drive_folder: {
+        Args: { p_student_id: string; p_url: string };
+        Returns: undefined;
+      };
+      app_set_project_domain: {
+        Args: { p_domain_id: string | null; p_project_id: string };
+        Returns: undefined;
+      };
+      app_set_project_title: {
+        Args: { p_project_id: string; p_title: string };
+        Returns: undefined;
+      };
+      app_update_student: {
+        Args: { p_patch: Json; p_student_id: string };
+        Returns: undefined;
+      };
+      app_upsert_criterion: {
+        Args: {
+          p_criterion_id?: string;
+          p_description?: string;
+          p_domain_id: string;
+          p_is_active?: boolean;
+          p_name: string;
+          p_sort_order?: number;
+        };
+        Returns: string;
+      };
+      app_upsert_domain: {
+        Args: {
+          p_description?: string;
+          p_domain_id?: string;
+          p_is_active?: boolean;
+          p_name: string;
+          p_semester_id: string;
+        };
+        Returns: string;
+      };
+      app_withdraw_student: {
+        Args: { p_reason: string; p_student_id: string };
+        Returns: undefined;
+      };
       app_activate_semester: {
         Args: { p_semester_id: string };
         Returns: undefined;
@@ -440,6 +1179,7 @@ export type Database = {
 type PublicSchema = Database['public'];
 
 export type Tables<T extends keyof PublicSchema['Tables']> = PublicSchema['Tables'][T]['Row'];
+export type Views<T extends keyof PublicSchema['Views']> = PublicSchema['Views'][T]['Row'];
 export type Enums<T extends keyof PublicSchema['Enums']> = PublicSchema['Enums'][T];
 export type RpcArgs<T extends keyof PublicSchema['Functions']> =
   PublicSchema['Functions'][T]['Args'];

@@ -96,7 +96,7 @@ Read: any member of the semester and the HOD/admin. Write: HOD (admin with `mana
 Read: members of the same semester. Write: HOD only.
 
 ### `faculty_expertise`
-`semester_id`, `user_id`, `domain_id`. Unique (user_id, domain_id). Read: faculty-level users. Write: the user themselves (if faculty-level) or the HOD.
+`semester_id`, `user_id`, `domain_id`, `is_active`. Unique (user_id, domain_id). Removing a domain switches the row off (history kept). Read: faculty-level users and admins. Write: through `app_set_expertise` only.
 
 ## 3. Configuration
 
@@ -126,7 +126,8 @@ Read: members of the same semester. Write: HOD only.
 | drive_folder_url | text null | https check |
 | status | roster_status | `empty` when name and email are null |
 
-- Trigger: the number of non-`empty` rows must not exceed `semesters.max_students` (`CAPACITY_EXCEEDED`).
+- `status` is derived by a trigger: `empty` (no name/email/ID), `pending_invite` (filled, no account), `active` (account linked); `withdrawn` is set by the HOD and kept.
+- Deferred constraint trigger: the number of non-`empty` rows must not exceed `semesters.max_students` (`CAPACITY_EXCEEDED`); the capacity cannot be lowered below the current count.
 - Read: faculty-level users; the student reads their own row. Write: HOD/admin (`manage_roster`); the student may update `drive_folder_url` only.
 
 ### `student_drive_folders`
@@ -149,7 +150,7 @@ Read: `can_view_project`. Write: the student may change `title` while S5 is not 
 `project_id`, `stage_key`, `status stage_status`, `approved_by`, `approved_at`, `exception_reason`. Primary key (project_id, stage_key). Nine rows are created with each project. All columns are protected (written only by workflow functions).
 
 ### `project_reviewers`
-`project_id`, `user_id`, `added_via_request uuid null`. Unique (project_id, user_id). Written only by `app_decide_assignment_request`.
+`project_id`, `user_id`, `is_active`, `added_via_request uuid null`, `added_by`. Unique (project_id, user_id). Written only by workflow functions; removing a co-reviewer switches the row off.
 
 ### `assignment_requests`
 `project_id`, `type assignment_type`, `faculty_id` (who would become guide/co-reviewer), `requested_by`, `reason`, `status request_status`, `decided_by`, `decided_at`, `decision_note`.

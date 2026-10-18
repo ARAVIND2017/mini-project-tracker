@@ -1,19 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
-import { Alert, Button, Card, LoadingState, PageHeader } from '@/components/ui';
+import { useParams } from 'react-router';
+import { Alert, Button, Card, LoadingState } from '@/components/ui';
 import { hasAdminPermission } from '@/domain/context';
 import { formFromSemester, settingsPayload, weekStartDate } from '@/domain/semester';
 import {
   activateSemester,
   closeSemester,
   getSemester,
+  listDomains,
   listMembers,
   updateSemester,
 } from '@/lib/api';
 import { useActiveContext, useAuth } from '../auth/authContext';
 import { SemesterForm } from './SemesterForm';
-import { SemesterStatusBadge } from './SemesterStatusBadge';
+import { SemesterNav } from './SemesterNav';
 
 export function SemesterDetailPage() {
   const { semesterId = '' } = useParams();
@@ -30,6 +31,10 @@ export function SemesterDetailPage() {
   const members = useQuery({
     queryKey: ['members', semesterId],
     queryFn: () => listMembers(semesterId),
+  });
+  const domains = useQuery({
+    queryKey: ['domains', semesterId],
+    queryFn: () => listDomains(semesterId),
   });
 
   const invalidate = async () => {
@@ -50,25 +55,12 @@ export function SemesterDetailPage() {
   const s = semester.data;
   const lead = members.data?.find((m) => m.role === 'lead_faculty' && m.is_active);
   const readOnly = !canConfigure || s.status === 'closed';
+  const activeDomainCount = (domains.data ?? []).filter((d) => d.is_active).length;
+  const hasDomain = activeDomainCount > 0;
 
   return (
     <div>
-      <PageHeader
-        title={s.name}
-        description={
-          <span className="inline-flex items-center gap-2">
-            <SemesterStatusBadge status={s.status} /> {s.academic_year ?? ''}
-          </span>
-        }
-        actions={
-          <Link
-            to={`/semesters/${s.id}/people`}
-            className="text-sm font-medium text-blue-700 underline dark:text-blue-300"
-          >
-            People & roles →
-          </Link>
-        }
-      />
+      <SemesterNav />
 
       {canConfigure && s.status === 'draft' && (
         <Card title="Activation checklist">
@@ -81,6 +73,10 @@ export function SemesterDetailPage() {
               {lead ? '✓' : '✕'} Lead faculty appointed{' '}
               {lead?.profile && `(${lead.profile.full_name})`}
             </li>
+            <li>
+              {hasDomain ? '✓' : '✕'} At least one project domain{' '}
+              {hasDomain && `(${activeDomainCount})`}
+            </li>
           </ul>
           {activate.error && (
             <div className="mt-3">
@@ -90,7 +86,7 @@ export function SemesterDetailPage() {
           <Button
             className="mt-3"
             busy={activate.isPending}
-            disabled={!s.start_date || !lead}
+            disabled={!s.start_date || !lead || !hasDomain}
             onClick={() => {
               if (
                 window.confirm(

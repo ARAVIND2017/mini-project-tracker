@@ -75,17 +75,32 @@ Who may call each function is listed in **Auth**. Every function re-checks the p
 
 Domains, criteria, milestones and templates are plain CRUD through PostgREST, with HOD/admin-only write policies.
 
-### 4.2 Assignments
+### 4.2 Domains, roster and assignments (built in Phase 3)
 
 | Function | Arguments | Auth / rules |
 |---|---|---|
-| `app_set_expertise` | semester_id, domain_ids[] | Faculty-level caller; replaces the caller's own expertise |
-| `app_request_assignment` | project_id, type, faculty_id, reason | A faculty-level user for themselves (domain must match their expertise); the lead for anyone (D8) |
-| `app_decide_assignment_request` | request_id, approve bool, note | HOD only. On approve: sets `guide_id` or inserts into `project_reviewers`; notifies everyone involved |
-| `app_assign_guide` | project_id, faculty_id, note | HOD only (direct assignment) |
-| `app_set_project_domain` | project_id, domain_id | HOD/admin |
-| `app_grant_review_authorization` | project_id, faculty_id, valid_until?, note | Lead or HOD (D9) |
+| `app_upsert_domain` | semester_id, name, description?, is_active?, domain_id? | HOD/admin (`manage_config`). Names unique per semester (ignoring case/spaces). Domains are switched off, never deleted |
+| `app_upsert_criterion` | domain_id, name, description?, sort_order?, is_active?, criterion_id? | HOD/admin (`manage_config`) |
+| `app_set_expertise` | semester_id, domain_ids[], user_id? | Faculty-level caller for themselves; the HOD for anyone. Unlisted domains are switched off (history kept) |
+| `app_import_roster` | semester_id, rows jsonb, dry_run (default **true**) | HOD/admin (`manage_roster`). Preview by default; a real import is all-or-nothing. Values stored as given (surrounding spaces trimmed). Blank rows → empty slots. Errors: duplicate slot/ID/email, bad email/Drive link, unknown domain, emptying a filled slot, withdrawn slot, `CAPACITY_EXCEEDED` |
+| `app_update_student` | student_id, patch {institution_id, full_name, email, drive_folder_url} | HOD/admin (`manage_roster`). A filled slot cannot be emptied; email is fixed once the student has an account |
+| `app_add_empty_slots` | semester_id, up_to_slot | HOD/admin (`manage_roster`) |
+| `app_withdraw_student` | student_id, reason | HOD. Keeps the roster entry and project; removes the student role |
+| `app_link_student` | student_id, user_id | HOD/admin; called by the `admin-users` Edge Function (`invite_student`). Roster email must match the account email |
+| `app_set_my_drive_folder` | student_id, url | The student, for their own roster entry |
+| `app_set_project_domain` | project_id, domain_id \| null | HOD/admin (`manage_config`) |
+| `app_set_project_title` | project_id, title | The project's student (until objectives are approved) or the HOD |
+| `app_request_assignment` | project_id, type, faculty_id, reason | A faculty-level user for themselves, only in their expertise domains (HOD exempt); the lead or HOD may propose anyone. The project needs a domain |
+| `app_cancel_assignment_request` | request_id | The requester or the HOD; pending only |
+| `app_decide_assignment_request` | request_id, approve, note? | HOD only. Approving a guide closes other pending guide requests for that project |
+| `app_assign_guide` | project_id, faculty_id \| null, note? | HOD only (direct assignment or unassignment) |
+| `app_remove_co_reviewer` | project_id, faculty_id, note? | HOD only (row switched off, kept) |
+| `app_grant_review_authorization` | project_id, faculty_id, valid_until?, note? | Lead or HOD (D9). Not for the guide; one active authorization per person and project |
 | `app_revoke_review_authorization` | authorization_id | Lead or HOD |
+
+The `admin-users` Edge Function gained `invite_student {student_id}` (HOD/admin with `manage_roster` or `manage_users`): it sends the invitation (or reuses an existing account with the same email) and calls `app_link_student`.
+
+**Read model:** `v_projects` (security invoker) — one row per project with slot, student, student ID, domain, **guide name**, co-reviewer names, pending request count and current stage.
 
 ### 4.3 Student workflow (the caller must be the project's own student)
 

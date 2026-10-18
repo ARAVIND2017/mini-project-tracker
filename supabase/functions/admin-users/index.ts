@@ -5,6 +5,7 @@
 // re-checks permissions (RLS + RPC) and records the caller in the audit log.
 //
 // POST { action: 'invite_faculty', email, full_name, semester_id, role, designation?, redirect_to? }
+// POST { action: 'invite_student', student_id, redirect_to? }
 // POST { action: 'resend_invite', user_id, redirect_to? }
 // POST { action: 'deactivate_user' | 'reactivate_user', user_id, reason }
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -86,6 +87,7 @@ interface Caller {
   id: string;
   isHod: boolean;
   canManageUsers: boolean;
+  canManageRoster: boolean;
   db: SupabaseClient; // acts as the caller (RLS applies)
 }
 
@@ -107,12 +109,19 @@ async function authenticate(req: Request, admin: SupabaseClient): Promise<Caller
 
   const roles = (context.system_roles ?? []) as { role: string; admin_permissions: string[] }[];
   const isHod = roles.some((r) => r.role === 'hod');
-  const canManageUsers =
-    isHod || roles.some((r) => r.role === 'admin' && r.admin_permissions.includes('manage_users'));
-  if (!canManageUsers) {
+  const hasPermission = (p: string) =>
+    isHod || roles.some((r) => r.role === 'admin' && r.admin_permissions.includes(p));
+  const canManageUsers = hasPermission('manage_users');
+  const canManageRoster = hasPermission('manage_roster');
+  if (!canManageUsers && !canManageRoster) {
     throw new HttpError(403, 'FORBIDDEN', 'Only the HOD can manage accounts');
   }
-  return { id: data.user.id, isHod, canManageUsers, db };
+  return { id: data.user.id, isHod, canManageUsers, canManageRoster, db };
+}
+
+function requireManageUsers(caller: Caller) {
+  if (!caller.canManageUsers)
+    throw new HttpError(403, 'FORBIDDEN', 'Only the HOD can manage accounts');
 }
 
 async function inviteFaculty(body: Record<string, unknown>, caller: Caller, admin: SupabaseClient) {
@@ -166,6 +175,63 @@ async function inviteFaculty(body: Record<string, unknown>, caller: Caller, admi
     // Do not leave an orphaned account behind if the membership was refused.
     await admin.auth.admin.deleteUser(userId);
     throw rpcError(membershipError);
+  }
+  return { ok: true, user_id: userId };
+}
+
+async function inviteStudent(body: Record<string, unknown>, caller: Caller, admin: SupabaseClient) {
+  const studentId = uuid(body, 'student_id');
+  // RLS: the caller must be able to see this roster entry.
+  const { data: student, error } = await caller.db
+    .from('students')
+    .select('id, full_name, email, status, user_id')
+    .eq('id', studentId)
+    .maybeSingle();
+  if (error) throw rpcError(error);
+  if (!student) throw new HttpError(404, 'NOT_FOUND', 'Roster entry not found');
+  if (student.status === 'empty' || student.status === 'withdrawn') {
+    throw new HttpError(400, 'VALIDATION', 'Only a filled roster entry can be invited');
+  }
+  if (student.user_id)
+    throw new HttpError(409, 'ALREADY_EXISTS', 'This student already has an account');
+  if (!student.email)
+    throw new HttpError(400, 'VALIDATION', "Add the student's email to the roster first");
+
+  let userId: string;
+  let created = false;
+  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(
+    student.email,
+    {
+      data: { full_name: student.full_name },
+      redirectTo: optionalRedirect(body),
+    },
+  );
+  if (inviteError) {
+    if (!/already been registered|already exists/i.test(inviteError.message)) {
+      console.error('invite error', inviteError.message);
+      throw new HttpError(500, 'INTERNAL', 'The invitation could not be sent');
+    }
+    // The person already has an account (e.g. from an earlier semester): link it.
+    const { data: existing } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', student.email)
+      .maybeSingle();
+    if (!existing)
+      throw new HttpError(409, 'ALREADY_EXISTS', 'An account with this email already exists');
+    userId = existing.id;
+  } else {
+    userId = invited.user.id;
+    created = true;
+  }
+
+  const { error: linkError } = await caller.db.rpc('app_link_student', {
+    p_student_id: studentId,
+    p_user_id: userId,
+  });
+  if (linkError) {
+    if (created) await admin.auth.admin.deleteUser(userId);
+    throw rpcError(linkError);
   }
   return { ok: true, user_id: userId };
 }
@@ -244,12 +310,17 @@ Deno.serve(async (req) => {
     }
     switch (body.action) {
       case 'invite_faculty':
+        requireManageUsers(caller);
         return json(200, await inviteFaculty(body, caller, admin));
+      case 'invite_student':
+        return json(200, await inviteStudent(body, caller, admin));
       case 'resend_invite':
         return json(200, await resendInvite(body, caller, admin));
       case 'deactivate_user':
+        requireManageUsers(caller);
         return json(200, await setActive(body, caller, admin, false));
       case 'reactivate_user':
+        requireManageUsers(caller);
         return json(200, await setActive(body, caller, admin, true));
       default:
         throw new HttpError(400, 'VALIDATION', 'Unknown action');

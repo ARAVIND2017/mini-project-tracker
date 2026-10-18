@@ -209,10 +209,12 @@ select tests.login_as((select id from u where name = 'hod'));
 select tests.assert_raises(format($$select public.app_activate_semester(%L)$$, :'sem'),
   'GATE_NOT_MET: Set the semester start date%', 'activation requires a start date');
 select public.app_update_semester(:'sem', '{"start_date": "2027-01-05"}');
+select public.app_upsert_domain(:'sem', 'Test Domain');
 select public.app_activate_semester(:'sem');
 select tests.assert_raises(format($$select public.app_activate_semester(%L)$$, :'sem'),
   'INVALID_STATE: Only a draft semester can be activated', 'cannot activate twice');
 select public.app_create_semester('No lead yet', null, '{"start_date": "2027-01-05"}') as nolead \gset
+select public.app_upsert_domain(:'nolead', 'Test Domain');
 select tests.assert_raises(format($$select public.app_activate_semester(%L)$$, :'nolead'),
   'GATE_NOT_MET: Appoint a lead faculty first', 'activation requires a lead');
 select public.app_close_semester(:'sem');

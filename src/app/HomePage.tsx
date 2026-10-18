@@ -3,6 +3,7 @@ import { Alert, Card, PageHeader } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
 import { hasAdminPermission, isHod, ROLE_LABELS } from '@/domain/context';
 import { useActiveContext } from '@/features/auth/authContext';
+import { MyProjectCard } from '@/features/projects/MyProjectCard';
 import { SemesterStatusBadge } from '@/features/semesters/SemesterStatusBadge';
 
 export function HomePage() {
@@ -26,10 +27,17 @@ export function HomePage() {
         </div>
       )}
 
+      {ctx.memberships.some((m) => m.role === 'student') && (
+        <div className="mb-6">
+          <MyProjectCard userId={ctx.user_id} />
+        </div>
+      )}
+
       {hasAdminPermission(ctx, 'manage_config') && (
         <Card title="Department setup">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Create a semester, invite the lead faculty and faculty, then activate it.
+            Create a semester, add domains, invite the lead and faculty, import the student roster,
+            then activate it.
           </p>
           <Link
             to="/semesters"
