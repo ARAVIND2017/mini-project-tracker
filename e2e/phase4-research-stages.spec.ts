@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createUser, screenshotAs, signIn, sql, sqlAs } from './helpers';
+import { addressCorrection, review, verifyCorrection } from './review';
 
 // TEST_PLAN.md journey 3 (Phase 4): a student takes S1–S5 from exploration to approved
 // objectives while the guide reviews, with corrections on the way. Run on a freshly
@@ -18,38 +19,6 @@ const LONG =
 
 async function stage(page: Page, name: RegExp) {
   await page.getByRole('button', { name }).click();
-}
-
-async function review(
-  page: Page,
-  outcome: 'Accept' | 'Request changes',
-  observations: string,
-  correction?: string,
-) {
-  const form = page.getByRole('form', { name: /^Review the / });
-  await form.getByLabel('Outcome').selectOption({ label: outcome });
-  await form.getByLabel('Observations').fill(observations);
-  if (correction) await form.getByLabel('Corrections 1').fill(correction);
-  await form.getByRole('button', { name: 'Record review' }).click();
-  await expect(page.getByText('Review recorded.')).toBeVisible();
-}
-
-async function addressCorrection(page: Page, correction: string, response: string) {
-  const item = page.getByRole('listitem').filter({ hasText: correction }).last();
-  await item.getByRole('button', { name: 'Mark as addressed' }).click();
-  await item.getByLabel('What did you change?').fill(response);
-  await item.getByRole('button', { name: 'Save response' }).click();
-  await expect(page.getByText('Correction marked as addressed.')).toBeVisible();
-}
-
-async function verifyCorrection(page: Page, correction: string) {
-  await page
-    .getByRole('listitem')
-    .filter({ hasText: correction })
-    .last()
-    .getByRole('button', { name: 'Verify' })
-    .click();
-  await expect(page.getByText('Correction verified.')).toBeVisible();
 }
 
 test('student completes S1–S5 with the guide reviewing (journey 3)', async ({

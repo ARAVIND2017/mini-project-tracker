@@ -21,7 +21,14 @@ export type ReviewOutcome = Enums<'review_outcome'>;
 
 export type WorkspaceSemester = Pick<
   Tables<'semesters'>,
-  'id' | 'name' | 'status' | 'target_paper_year' | 'paper_change_cutoff_week' | 'start_date'
+  | 'id'
+  | 'name'
+  | 'status'
+  | 'target_paper_year'
+  | 'paper_change_cutoff_week'
+  | 'start_date'
+  | 'timezone'
+  | 'week_count'
 >;
 
 export interface ProjectWorkspace {
@@ -68,7 +75,9 @@ export async function getProjectWorkspace(projectId: string): Promise<ProjectWor
     run(
       db
         .from('semesters')
-        .select('id, name, status, target_paper_year, paper_change_cutoff_week, start_date')
+        .select(
+          'id, name, status, target_paper_year, paper_change_cutoff_week, start_date, timezone, week_count',
+        )
         .eq('id', project.semester_id as string)
         .maybeSingle(),
     ),

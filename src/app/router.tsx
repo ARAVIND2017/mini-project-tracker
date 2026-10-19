@@ -66,6 +66,14 @@ export const router = createBrowserRouter([
                 lazy: lazyPage(() => import('./pages/AssignmentsRoute')),
               },
               {
+                path: 'semesters/:semesterId/plan',
+                lazy: lazyPage(() => import('./pages/PlanRoute')),
+              },
+              {
+                path: 'semesters/:semesterId/review-queue',
+                lazy: lazyPage(() => import('./pages/ReviewQueueRoute')),
+              },
+              {
                 path: 'projects/:projectId',
                 lazy: lazyPage(() => import('./pages/ProjectWorkspaceRoute')),
               },

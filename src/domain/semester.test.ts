@@ -1,7 +1,11 @@
 import {
   DEFAULT_SEMESTER_FORM,
   formFromSemester,
+  formatInZone,
   isoWeekday,
+  teachingWeek,
+  todayInZone,
+  weekDueDate,
   semesterSettingsSchema,
   settingsPayload,
   weekStartDate,
@@ -79,5 +83,33 @@ describe('week dates', () => {
   it('computes ISO weekdays', () => {
     expect(isoWeekday('2027-01-05')).toBe(2); // Tuesday
     expect(isoWeekday('2027-01-10')).toBe(7); // Sunday
+  });
+});
+
+describe('weekly deadlines', () => {
+  it('puts week N on the Monday before the next Tuesday lab (matches app.week_due_at)', () => {
+    // 2027-01-05 is a Tuesday.
+    expect(weekDueDate('2027-01-05', 1, 1)).toBe('2027-01-11');
+    expect(weekDueDate('2027-01-05', 16, 1)).toBe('2027-04-26');
+  });
+
+  it('uses the milestone override for the week start', () => {
+    expect(weekDueDate('2027-01-05', 3, 1, '2027-01-21')).toBe('2027-01-25');
+  });
+
+  it('handles a submission day equal to the lab day (a week before the next lab)', () => {
+    expect(weekDueDate('2027-01-05', 1, 2)).toBe('2027-01-05');
+  });
+
+  it('computes the teaching week', () => {
+    expect(teachingWeek('2027-01-05', '2027-01-04')).toBe(0);
+    expect(teachingWeek('2027-01-05', '2027-01-05')).toBe(1);
+    expect(teachingWeek('2027-01-05', '2027-01-12')).toBe(2);
+    expect(teachingWeek(null, '2027-01-12')).toBe(0);
+  });
+
+  it('formats in the semester time zone', () => {
+    expect(formatInZone('2027-01-11T18:29:00Z', 'Asia/Kolkata')).toContain('23:59');
+    expect(todayInZone('Asia/Kolkata', new Date('2027-01-11T20:00:00Z'))).toBe('2027-01-12');
   });
 });

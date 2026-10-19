@@ -16,8 +16,8 @@ export function EvidenceSection({
   categories: Enums<'evidence_category'>[];
 }) {
   const { ws, viewer, readOnly, busy, act } = useWorkspace();
-  // Evidence attached to an execution attempt is shown with that attempt.
-  const items = ws.evidence.filter((e) => e.stage_key === stageKey && !e.linked_type);
+  // Evidence attached to an execution attempt or a weekly task is shown there instead.
+  const items = ws.evidence.filter((e) => e.stage_key === stageKey && !e.linked_type && !e.task_id);
   const [form, setForm] = useState<EvidenceInput>({
     category: categories[0] ?? 'other',
     url: '',

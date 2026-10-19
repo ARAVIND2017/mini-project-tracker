@@ -26,12 +26,19 @@ export function SemesterNav() {
     { to: `/semesters/${semesterId}`, label: 'Overview', end: true, show: true },
     { to: `/semesters/${semesterId}/projects`, label: 'Projects', end: false, show: staff },
     {
+      to: `/semesters/${semesterId}/review-queue`,
+      label: 'Review queue',
+      end: false,
+      show: isFacultyLevel(ctx, semesterId),
+    },
+    {
       to: `/semesters/${semesterId}/assignments`,
       label: 'Assignments',
       end: false,
       show: isFacultyLevel(ctx, semesterId),
     },
     { to: `/semesters/${semesterId}/roster`, label: 'Roster', end: false, show: staff },
+    { to: `/semesters/${semesterId}/plan`, label: 'Plan', end: false, show: staff },
     { to: `/semesters/${semesterId}/domains`, label: 'Domains', end: false, show: true },
     {
       to: `/semesters/${semesterId}/people`,

@@ -160,3 +160,48 @@ export function isoWeekday(date: string): number {
   const day = new Date(`${date}T00:00:00Z`).getUTCDay();
   return day === 0 ? 7 : day;
 }
+
+/**
+ * Calendar date on which week N's work is due: the submission weekday before the next
+ * lab (week start + 7 days). Mirrors app.week_due_at in the database; the time of day
+ * is the semester's submission time, in the semester's time zone.
+ */
+export function weekDueDate(
+  startDate: string,
+  weekNo: number,
+  submissionWeekday: number,
+  weekStartOverride?: string | null,
+): string {
+  const nextLab = new Date(`${weekStartOverride || weekStartDate(startDate, weekNo)}T00:00:00Z`);
+  nextLab.setUTCDate(nextLab.getUTCDate() + 7);
+  const labDay = isoWeekday(nextLab.toISOString().slice(0, 10));
+  nextLab.setUTCDate(nextLab.getUTCDate() - ((((labDay - submissionWeekday + 6) % 7) + 7) % 7) - 1);
+  return nextLab.toISOString().slice(0, 10);
+}
+
+/** The current teaching week (1-based) for a date, or 0 before the start. */
+export function teachingWeek(startDate: string | null, today: string): number {
+  if (!startDate) return 0;
+  const days = Math.round(
+    (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / 86_400_000,
+  );
+  return days < 0 ? 0 : Math.floor(days / 7) + 1;
+}
+
+/** A date-time shown in the semester's time zone, e.g. "Mon, 11 Jan, 23:59". */
+export function formatInZone(iso: string, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(iso));
+}
+
+/** Today's calendar date in a time zone (YYYY-MM-DD). */
+export function todayInZone(timeZone: string, now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(now);
+}

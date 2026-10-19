@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, Button, Card, TextField } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
+import { getNextTask } from '@/lib/tasks';
 import {
   listMyProjects,
   listMyRosterEntries,
@@ -54,6 +55,10 @@ function ProjectCard({
   const [drive, setDrive] = useState(driveUrl);
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
   const stage = STAGES.find((s) => s.key === p.current_stage);
+  const nextTask = useQuery({
+    queryKey: ['tasks', p.id, 'next'],
+    queryFn: () => getNextTask(p.id as string),
+  });
 
   const save = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
@@ -73,12 +78,20 @@ function ProjectCard({
     <Card
       title="My project"
       actions={
-        <Link
-          to={`/projects/${p.id}`}
-          className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 dark:bg-blue-600"
-        >
-          Open my research stages
-        </Link>
+        <span className="flex flex-wrap gap-2">
+          <Link
+            to={`/projects/${p.id}?view=tasks`}
+            className="rounded-md px-3 py-2 text-sm font-medium ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:ring-slate-700 dark:hover:bg-slate-800"
+          >
+            My weekly tasks
+          </Link>
+          <Link
+            to={`/projects/${p.id}`}
+            className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 dark:bg-blue-600"
+          >
+            Open my research stages
+          </Link>
+        </span>
       }
     >
       {message && (
@@ -103,6 +116,19 @@ function ProjectCard({
           <dt className="text-slate-500 dark:text-slate-400">Current stage</dt>
           <dd>{stage ? `${stage.no}. ${stage.name}` : 'All stages complete'}</dd>
         </div>
+        {nextTask.data && (
+          <div className="sm:col-span-2">
+            <dt className="text-slate-500 dark:text-slate-400">Next task</dt>
+            <dd>
+              Week {nextTask.data.week_no}: {nextTask.data.title}
+              {nextTask.data.due_at &&
+                ` · due ${new Date(nextTask.data.due_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}`}
+              {nextTask.data.is_overdue && (
+                <span className="ml-2 font-medium text-red-800 dark:text-red-300">✕ Overdue</span>
+              )}
+            </dd>
+          </div>
+        )}
       </dl>
 
       <form

@@ -1,7 +1,7 @@
 // Generated from the live Supabase schema (project utkekzbkdtcbmupbxmpp) — do not edit by hand.
-// Regenerate after each migration: Supabase MCP `generate_typescript_types` or
-// `supabase gen types typescript --project-id utkekzbkdtcbmupbxmpp`, then re-apply the
-// two local edits: nullable p_domain_id in app_set_project_domain, and the helpers at the end.
+// Regenerate after each migration (Supabase MCP `generate_typescript_types` or
+// `supabase gen types typescript --project-id utkekzbkdtcbmupbxmpp`), then run
+// `node scripts/install-db-types.mjs <file>`, which re-applies the local edits below.
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
@@ -467,6 +467,20 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'evidence_task_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evidence_task_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_tasks';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'evidence_verified_by_fkey';
             columns: ['verified_by'];
             isOneToOne: false;
@@ -646,6 +660,56 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      milestones: {
+        Row: {
+          checkpoint: string | null;
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_gate: boolean;
+          semester_id: string;
+          stage_key: Database['public']['Enums']['stage_key'];
+          start_date_override: string | null;
+          title: string;
+          updated_at: string;
+          week_no: number;
+        };
+        Insert: {
+          checkpoint?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_gate?: boolean;
+          semester_id: string;
+          stage_key: Database['public']['Enums']['stage_key'];
+          start_date_override?: string | null;
+          title: string;
+          updated_at?: string;
+          week_no: number;
+        };
+        Update: {
+          checkpoint?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_gate?: boolean;
+          semester_id?: string;
+          stage_key?: Database['public']['Enums']['stage_key'];
+          start_date_override?: string | null;
+          title?: string;
+          updated_at?: string;
+          week_no?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'milestones_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
             referencedColumns: ['id'];
           },
         ];
@@ -1581,6 +1645,108 @@ export type Database = {
           },
         ];
       };
+      submission_evidence: {
+        Row: {
+          evidence_id: string;
+          submission_id: string;
+        };
+        Insert: {
+          evidence_id: string;
+          submission_id: string;
+        };
+        Update: {
+          evidence_id?: string;
+          submission_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'submission_evidence_evidence_id_fkey';
+            columns: ['evidence_id'];
+            isOneToOne: false;
+            referencedRelation: 'evidence';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submission_evidence_submission_id_fkey';
+            columns: ['submission_id'];
+            isOneToOne: false;
+            referencedRelation: 'submissions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      submissions: {
+        Row: {
+          due_at_snapshot: string;
+          id: string;
+          is_late: boolean;
+          progress_report: string;
+          project_id: string;
+          submitted_at: string;
+          submitted_by: string;
+          task_id: string;
+          version: number;
+        };
+        Insert: {
+          due_at_snapshot: string;
+          id?: string;
+          is_late: boolean;
+          progress_report: string;
+          project_id: string;
+          submitted_at?: string;
+          submitted_by: string;
+          task_id: string;
+          version: number;
+        };
+        Update: {
+          due_at_snapshot?: string;
+          id?: string;
+          is_late?: boolean;
+          progress_report?: string;
+          project_id?: string;
+          submitted_at?: string;
+          submitted_by?: string;
+          task_id?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'submissions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_submitted_by_fkey';
+            columns: ['submitted_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       system_roles: {
         Row: {
           admin_permissions: string[];
@@ -1632,6 +1798,171 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      task_templates: {
+        Row: {
+          acceptance_criteria: string[];
+          created_at: string;
+          description: string | null;
+          domain_id: string | null;
+          id: string;
+          is_active: boolean;
+          replaces_template_id: string | null;
+          required_evidence: Database['public']['Enums']['evidence_category'][];
+          semester_id: string;
+          sort_order: number;
+          stage_key: Database['public']['Enums']['stage_key'];
+          title: string;
+          updated_at: string;
+          week_no: number;
+        };
+        Insert: {
+          acceptance_criteria: string[];
+          created_at?: string;
+          description?: string | null;
+          domain_id?: string | null;
+          id?: string;
+          is_active?: boolean;
+          replaces_template_id?: string | null;
+          required_evidence?: Database['public']['Enums']['evidence_category'][];
+          semester_id: string;
+          sort_order?: number;
+          stage_key: Database['public']['Enums']['stage_key'];
+          title: string;
+          updated_at?: string;
+          week_no: number;
+        };
+        Update: {
+          acceptance_criteria?: string[];
+          created_at?: string;
+          description?: string | null;
+          domain_id?: string | null;
+          id?: string;
+          is_active?: boolean;
+          replaces_template_id?: string | null;
+          required_evidence?: Database['public']['Enums']['evidence_category'][];
+          semester_id?: string;
+          sort_order?: number;
+          stage_key?: Database['public']['Enums']['stage_key'];
+          title?: string;
+          updated_at?: string;
+          week_no?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_templates_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_templates_replaces_template_id_fkey';
+            columns: ['replaces_template_id'];
+            isOneToOne: false;
+            referencedRelation: 'task_templates';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_templates_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      tasks: {
+        Row: {
+          acceptance_criteria: string[];
+          blocked: boolean;
+          blocked_at: string | null;
+          blocked_by: string | null;
+          blocked_reason: string | null;
+          created_at: string;
+          description: string | null;
+          due_at: string;
+          id: string;
+          is_active: boolean;
+          project_id: string;
+          required_evidence: Database['public']['Enums']['evidence_category'][];
+          stage_key: Database['public']['Enums']['stage_key'];
+          status: Database['public']['Enums']['task_status'];
+          template_id: string | null;
+          title: string;
+          updated_at: string;
+          week_no: number;
+        };
+        Insert: {
+          acceptance_criteria?: string[];
+          blocked?: boolean;
+          blocked_at?: string | null;
+          blocked_by?: string | null;
+          blocked_reason?: string | null;
+          created_at?: string;
+          description?: string | null;
+          due_at: string;
+          id?: string;
+          is_active?: boolean;
+          project_id: string;
+          required_evidence?: Database['public']['Enums']['evidence_category'][];
+          stage_key: Database['public']['Enums']['stage_key'];
+          status?: Database['public']['Enums']['task_status'];
+          template_id?: string | null;
+          title: string;
+          updated_at?: string;
+          week_no: number;
+        };
+        Update: {
+          acceptance_criteria?: string[];
+          blocked?: boolean;
+          blocked_at?: string | null;
+          blocked_by?: string | null;
+          blocked_reason?: string | null;
+          created_at?: string;
+          description?: string | null;
+          due_at?: string;
+          id?: string;
+          is_active?: boolean;
+          project_id?: string;
+          required_evidence?: Database['public']['Enums']['evidence_category'][];
+          stage_key?: Database['public']['Enums']['stage_key'];
+          status?: Database['public']['Enums']['task_status'];
+          template_id?: string | null;
+          title?: string;
+          updated_at?: string;
+          week_no?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'tasks_blocked_by_fkey';
+            columns: ['blocked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_template_id_fkey';
+            columns: ['template_id'];
+            isOneToOne: false;
+            referencedRelation: 'task_templates';
             referencedColumns: ['id'];
           },
         ];
@@ -1700,6 +2031,107 @@ export type Database = {
           },
         ];
       };
+      v_review_queue: {
+        Row: {
+          guide_id: string | null;
+          guide_name: string | null;
+          is_late: boolean | null;
+          item_id: string | null;
+          item_status: string | null;
+          item_type: string | null;
+          project_id: string | null;
+          reviewer_ids: string[] | null;
+          semester_id: string | null;
+          slot_no: number | null;
+          stage_key: Database['public']['Enums']['stage_key'] | null;
+          student_name: string | null;
+          target_id: string | null;
+          target_type: Database['public']['Enums']['review_target'] | null;
+          title: string | null;
+          version: number | null;
+          waiting_since: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_guide_id_fkey';
+            columns: ['guide_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      v_tasks: {
+        Row: {
+          acceptance_criteria: string[] | null;
+          blocked: boolean | null;
+          blocked_at: string | null;
+          blocked_by: string | null;
+          blocked_reason: string | null;
+          description: string | null;
+          due_at: string | null;
+          id: string | null;
+          is_overdue: boolean | null;
+          latest_is_late: boolean | null;
+          latest_submitted_at: string | null;
+          latest_version: number | null;
+          outstanding_corrections: number | null;
+          project_id: string | null;
+          required_evidence: Database['public']['Enums']['evidence_category'][] | null;
+          semester_id: string | null;
+          stage_key: Database['public']['Enums']['stage_key'] | null;
+          status: Database['public']['Enums']['task_status'] | null;
+          submission_count: number | null;
+          template_id: string | null;
+          title: string | null;
+          updated_at: string | null;
+          week_no: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_blocked_by_fkey';
+            columns: ['blocked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_template_id_fkey';
+            columns: ['template_id'];
+            isOneToOne: false;
+            referencedRelation: 'task_templates';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Functions: {
       app_activate_semester: {
@@ -1755,6 +2187,14 @@ export type Database = {
       app_decide_assignment_request: {
         Args: { p_approve: boolean; p_note?: string; p_request_id: string };
         Returns: undefined;
+      };
+      app_generate_tasks: {
+        Args: {
+          p_project_id?: string;
+          p_regenerate?: boolean;
+          p_semester_id: string;
+        };
+        Returns: number;
       };
       app_grant_review_authorization: {
         Args: {
@@ -1866,6 +2306,15 @@ export type Database = {
         Returns: string;
       };
       app_select_paper: { Args: { p_paper_id: string }; Returns: undefined };
+      app_set_blocked: {
+        Args: {
+          p_blocked: boolean;
+          p_id: string;
+          p_reason?: string;
+          p_target: string;
+        };
+        Returns: undefined;
+      };
       app_set_expertise: {
         Args: {
           p_domain_ids: string[];
@@ -1903,12 +2352,26 @@ export type Database = {
         Args: { p_is_active: boolean; p_reason: string; p_user_id: string };
         Returns: undefined;
       };
+      app_start_review: {
+        Args: { p_submission_id: string };
+        Returns: undefined;
+      };
+      app_start_task: { Args: { p_task_id: string }; Returns: undefined };
       app_submit_record: {
         Args: {
           p_target_id: string;
           p_target_type: Database['public']['Enums']['review_target'];
         };
         Returns: undefined;
+      };
+      app_submit_task: {
+        Args: {
+          p_evidence?: Json;
+          p_evidence_ids?: string[];
+          p_progress_report: string;
+          p_task_id: string;
+        };
+        Returns: string;
       };
       app_update_semester: {
         Args: { p_semester_id: string; p_settings: Json };
@@ -1937,6 +2400,14 @@ export type Database = {
           p_name: string;
           p_semester_id: string;
         };
+        Returns: string;
+      };
+      app_upsert_milestone: {
+        Args: { p_data: Json; p_semester_id: string; p_week_no: number };
+        Returns: string;
+      };
+      app_upsert_task_template: {
+        Args: { p_data: Json; p_semester_id: string; p_template_id?: string };
         Returns: string;
       };
       app_verify_evidence: {

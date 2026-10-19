@@ -71,9 +71,11 @@ Who may call each function is listed in **Auth**. Every function re-checks the p
 | `app_grant_system_role` / `app_revoke_system_role` | user_id, role, permissions[] | void | HOD only. Revoking is a soft revoke (`revoked_at`), re-granting restores the row; the last active HOD cannot be revoked |
 | `app.bootstrap_hod(email)` | email | user id | **Not callable through the API.** Run once from the Supabase SQL editor to make the first HOD |
 | `app_import_roster` | semester_id, rows jsonb[] `{slot_no, institution_id?, full_name?, email?, drive_folder_url?, domain_name?}`, dry_run bool | report jsonb (created / updated / errors per row) | HOD/admin. Stores the values exactly as given; empty rows become `empty` slots; `CAPACITY_EXCEEDED` if over capacity |
-| `app_generate_tasks` | semester_id, project_id? , regenerate bool | count | HOD/admin. Creates tasks from the templates (with domain overrides) and computes `due_at` |
+| `app_generate_tasks` | semester_id, project_id?, regenerate bool | count | HOD/admin (`manage_config`); needs a start date. Creates the missing tasks from the templates (with domain overrides) and computes `due_at`; with `regenerate`, refreshes tasks that have no submission and switches off those whose template no longer applies. Tasks are also generated automatically when the semester is activated, when a project is added to an active semester, and when a project's domain changes |
+| `app_upsert_milestone` | semester_id, week_no, data {title, stage_key, description, is_gate, checkpoint, start_date_override} | milestone id | HOD/admin (`manage_config`). Built in Phase 5; a new semester starts with the default 16-week plan |
+| `app_upsert_task_template` | semester_id, data {week_no, stage_key, domain_id, replaces_template_id, title, description, acceptance_criteria[], required_evidence[], sort_order, is_active}, template_id? | template id | HOD/admin. A domain template may replace a generic one; templates are switched off, never deleted |
 
-Domains, criteria, milestones and templates are plain CRUD through PostgREST, with HOD/admin-only write policies.
+Domains, criteria, milestones and templates are changed through the functions above (there are no table write privileges).
 
 ### 4.2 Domains, roster and assignments (built in Phase 3)
 
@@ -119,14 +121,15 @@ Built in Phase 4 for S1–S5. Forms send every field as `p_data` jsonb; unknown 
 | `app_add_evidence` | project_id, stage_key, category, url, description | https only (SEC-12); description ≥ 10 characters |
 | `app_submit_record` | target_type (exploration, paper, paper_analysis, repository, objective), target_id | Validates required fields (WORKFLOW_SPEC §2.1) and lists everything missing; refuses while corrections are open; status → `submitted` / `verification_pending`; stage → `awaiting_approval` (unless an approved version is already in force). The repository needs a successful attempt with evidence (WF-01) |
 | `app_address_correction` | correction_id, response, evidence_ids[]? | open → addressed; response ≥ 10 characters |
-| `app_submit_task` | task_id, progress_report, evidence_ids[] | (Phase 5) Creates submission version n+1; sets `is_late`; task → `submitted`/`resubmitted`. S6+ tasks require S5 approved (`GATE_NOT_MET`) |
-| `app_set_blocked` | target ('task'\|'project'), id, blocked bool, reason | (Phase 5) Student (own), a reviewer, lead, HOD |
+| `app_start_task` | task_id | not_started → in_progress |
+| `app_submit_task` | task_id, progress_report (≥ 100 characters), evidence jsonb [{category,url,description}], evidence_ids[]? | Creates immutable submission version n+1 and records `is_late` against the deadline at that moment; task → `submitted` (or `resubmitted` after changes were requested). Refused while the task waits for review, while corrections are open, or without evidence when the task expects some. S6, S7 and S9 tasks need S5 approved or the HOD's `objective_gate` override (`GATE_NOT_MET`, WF-02) |
+| `app_set_blocked` | target ('task'\|'project'), id, blocked bool, reason | Student (own), a reviewer, lead, HOD. A flag with a reason; the status does not change |
 
 ### 4.4 Faculty workflow
 
 | Function | Arguments | Auth / rules |
 |---|---|---|
-| `app_start_review` | submission_id | Reviewer of the project; task → `under_review` |
+| `app_start_review` | submission_id | Reviewer of the project; latest version only; task → `under_review` |
 | `app_record_review` | target_type, target_id, outcome, observations, comments, corrections text[] | `comment_only`: any faculty-level user; changes nothing and creates no corrections. Other outcomes: a reviewer of the project, only for a record waiting for review. `changes_requested` requires ≥ 1 correction; `rejected` requires observations; `accepted` requires every correction on the record verified or waived and the stages it depends on approved (`GATE_NOT_MET`). Applies the state transitions in WORKFLOW_SPEC §3; runs the duplicate-paper check on paper approval (`DUPLICATE_PAPER`) |
 | `app_resolve_correction` | correction_id, action ('verify'\|'reopen'\|'waive'), note | Reviewer of the project; `waive` and `reopen` require a note |
 | `app_verify_evidence` | evidence_id, verification, note | Reviewer of the project |

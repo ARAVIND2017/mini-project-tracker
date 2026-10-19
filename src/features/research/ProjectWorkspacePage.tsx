@@ -13,6 +13,7 @@ import { ExplorationStage } from './ExplorationStage';
 import { ObjectivesStage } from './ObjectivesStage';
 import { PaperStage } from './PaperStage';
 import { RepositoryStage } from './RepositoryStage';
+import { WeeklyTasks } from './WeeklyTasks';
 import { WorkspaceContext, type WorkspaceValue } from './workspaceContext';
 
 /** Stages with screens in this release (Phase 4). S6–S9 follow in Phases 5–6. */
@@ -69,6 +70,8 @@ export function ProjectWorkspacePage() {
         setBusy(false);
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ['workspace', projectId] }),
+          queryClient.invalidateQueries({ queryKey: ['tasks', projectId] }),
+          queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
           queryClient.invalidateQueries({ queryKey: ['projects'] }),
           queryClient.invalidateQueries({ queryKey: ['my-projects'] }),
         ]);
@@ -115,6 +118,7 @@ export function ProjectWorkspacePage() {
   }
 
   const { ws, viewer } = value;
+  const showTasks = params.get('view') === 'tasks';
   const requested = params.get('stage') as StageKey | null;
   const stage =
     requested && OPEN_STAGES.includes(requested)
@@ -161,6 +165,27 @@ export function ProjectWorkspacePage() {
         }
       />
 
+      <div role="tablist" aria-label="Project views" className="mb-4 flex gap-2">
+        {[
+          { key: 'stages', label: 'Research stages', active: !showTasks },
+          { key: 'tasks', label: 'Weekly tasks', active: showTasks },
+        ].map((v) => (
+          <button
+            key={v.key}
+            type="button"
+            role="tab"
+            aria-selected={v.active}
+            onClick={() => {
+              setMessage(null);
+              setParams(v.key === 'tasks' ? { view: 'tasks' } : {}, { replace: true });
+            }}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium ${v.active ? 'bg-blue-700 text-white dark:bg-blue-600' : 'text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800'}`}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+
       <nav aria-label="Stages" className="mb-6">
         <ol className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {STAGES.map((s) => {
@@ -182,12 +207,12 @@ export function ProjectWorkspacePage() {
                 {open ? (
                   <button
                     type="button"
-                    aria-current={current ? 'step' : undefined}
+                    aria-current={current && !showTasks ? 'step' : undefined}
                     onClick={() => {
                       setMessage(null);
                       setParams({ stage: s.key }, { replace: true });
                     }}
-                    className={`h-full w-full rounded-md border p-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${current ? 'border-blue-600 ring-1 ring-blue-600' : 'border-slate-200 dark:border-slate-800'}`}
+                    className={`h-full w-full rounded-md border p-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${current && !showTasks ? 'border-blue-600 ring-1 ring-blue-600' : 'border-slate-200 dark:border-slate-800'}`}
                   >
                     {content}
                   </button>
@@ -216,7 +241,15 @@ export function ProjectWorkspacePage() {
         </div>
       )}
 
-      <Card title={stageDef ? `S${stageDef.no} · ${stageDef.name}` : undefined}>{body[stage]}</Card>
+      {showTasks ? (
+        <Card title="Weekly tasks">
+          <WeeklyTasks openSubmissionId={params.get('submission')} />
+        </Card>
+      ) : (
+        <Card title={stageDef ? `S${stageDef.no} · ${stageDef.name}` : undefined}>
+          {body[stage]}
+        </Card>
+      )}
     </WorkspaceContext.Provider>
   );
 }
