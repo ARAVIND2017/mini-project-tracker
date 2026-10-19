@@ -4,6 +4,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
 } from 'react';
 
 type Variant = 'primary' | 'secondary' | 'danger';
@@ -115,6 +116,107 @@ export function SelectField({
         </p>
       )}
     </div>
+  );
+}
+
+export function TextAreaField({
+  label,
+  hint,
+  error,
+  className = '',
+  rows = 3,
+  ...props
+}: FieldProps & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const id = useId();
+  return (
+    <div className={className}>
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        rows={rows}
+        {...props}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? `${id}-desc` : undefined}
+        className={`mt-1 ${inputClasses}`}
+      />
+      {(error || hint) && (
+        <p
+          id={`${id}-desc`}
+          className={`mt-1 text-xs ${error ? 'text-red-700 dark:text-red-300' : 'text-slate-500 dark:text-slate-400'}`}
+        >
+          {error ?? hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** An editable list of short texts (keywords, objectives, corrections …). */
+export function ListField({
+  label,
+  hint,
+  values,
+  onChange,
+  addLabel = 'Add another',
+  placeholder,
+  disabled,
+}: {
+  label: string;
+  hint?: string;
+  values: string[];
+  onChange: (values: string[]) => void;
+  addLabel?: string;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
+  const id = useId();
+  const items = values.length ? values : [''];
+  return (
+    <fieldset aria-describedby={hint ? `${id}-desc` : undefined}>
+      <legend className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+        {label}
+      </legend>
+      <div className="mt-1 space-y-2">
+        {items.map((value, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              aria-label={`${label} ${i + 1}`}
+              className={inputClasses}
+              value={value}
+              placeholder={placeholder}
+              disabled={disabled}
+              onChange={(e) => onChange(items.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+            {items.length > 1 && !disabled && (
+              <button
+                type="button"
+                aria-label={`Remove entry ${i + 1} from ${label.toLowerCase()}`}
+                className="rounded-md px-2 text-sm text-slate-500 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:ring-slate-700 dark:hover:bg-slate-800"
+                onClick={() => onChange(items.filter((_, j) => j !== i))}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      {!disabled && (
+        <button
+          type="button"
+          className="mt-2 text-sm font-medium text-blue-700 hover:underline dark:text-blue-300"
+          onClick={() => onChange([...items, ''])}
+        >
+          + {addLabel}
+        </button>
+      )}
+      {hint && (
+        <p id={`${id}-desc`} className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {hint}
+        </p>
+      )}
+    </fieldset>
   );
 }
 

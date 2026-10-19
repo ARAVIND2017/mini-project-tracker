@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Alert, Button, Card, TextField } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
 import {
@@ -69,7 +70,17 @@ function ProjectCard({
   };
 
   return (
-    <Card title="My project">
+    <Card
+      title="My project"
+      actions={
+        <Link
+          to={`/projects/${p.id}`}
+          className="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 dark:bg-blue-600"
+        >
+          Open my research stages
+        </Link>
+      }
+    >
       {message && (
         <div className="mb-3">
           <Alert tone={message.tone}>{message.text}</Alert>

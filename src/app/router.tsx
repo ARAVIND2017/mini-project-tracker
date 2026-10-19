@@ -65,6 +65,10 @@ export const router = createBrowserRouter([
                 path: 'semesters/:semesterId/assignments',
                 lazy: lazyPage(() => import('./pages/AssignmentsRoute')),
               },
+              {
+                path: 'projects/:projectId',
+                lazy: lazyPage(() => import('./pages/ProjectWorkspaceRoute')),
+              },
             ],
           },
         ],

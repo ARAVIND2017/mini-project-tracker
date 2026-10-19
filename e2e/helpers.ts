@@ -93,3 +93,18 @@ export async function screenshot(page: Page, name: string) {
     fullPage: true,
   });
 }
+
+/** Saves a full-page screenshot under docs/demo with an explicit file name. */
+export async function screenshotAs(page: Page, fileName: string) {
+  await page.screenshot({ path: `docs/demo/${fileName}.png`, fullPage: true });
+}
+
+/** Runs workflow functions as the given user from SQL (local stack seeding only). */
+export function sqlAs(email: string, statement: string): string {
+  const uid = sql(`select id from auth.users where email = '${email}'`);
+  return sql(
+    `select set_config('request.jwt.claims', '{"sub": "${uid}", "role": "authenticated"}', false); ${statement}`,
+  )
+    .split('\n')
+    .pop() as string;
+}

@@ -5,7 +5,7 @@ import { AppError, toAppError } from './errors';
 import { requireSupabase } from './supabase';
 
 /** Unwraps a supabase-js { data, error } result, throwing an AppError on failure. */
-async function run<T>(promise: PromiseLike<{ data: T; error: unknown }>): Promise<T> {
+export async function run<T>(promise: PromiseLike<{ data: T; error: unknown }>): Promise<T> {
   let result: { data: T; error: unknown };
   try {
     result = await promise;

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { Alert, Card, LoadingState, SelectField, TextField } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
 import { hasAdminPermission, isHod } from '@/domain/context';
@@ -168,7 +168,12 @@ function ProjectsPageContent() {
                   >
                     <td className="px-4 py-2 align-top">{p.slot_no}</td>
                     <td className="px-4 py-2 align-top">
-                      <div className="font-medium">{p.student_name}</div>
+                      <Link
+                        to={`/projects/${p.id}`}
+                        className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+                      >
+                        {p.student_name}
+                      </Link>
                       <div className="text-xs text-slate-500 dark:text-slate-400">
                         {p.institution_id ?? 'No student ID'}
                         {p.roster_status === 'withdrawn' && ' · withdrawn'}
@@ -247,7 +252,14 @@ function ProjectsPageContent() {
                     <td className="px-4 py-2 align-top">
                       {p.co_reviewer_names?.length ? p.co_reviewer_names.join(', ') : '—'}
                     </td>
-                    <td className="px-4 py-2 align-top">{stageName(p.current_stage)}</td>
+                    <td className="px-4 py-2 align-top">
+                      {stageName(p.current_stage)}
+                      {(p.awaiting_review ?? 0) > 0 && (
+                        <div className="mt-1 text-xs font-medium text-amber-800 dark:text-amber-300">
+                          ! {p.awaiting_review} waiting for review
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

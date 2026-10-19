@@ -104,23 +104,30 @@ The `admin-users` Edge Function gained `invite_student {student_id}` (HOD/admin 
 
 ### 4.3 Student workflow (the caller must be the project's own student)
 
+Built in Phase 4 for S1–S5. Forms send every field as `p_data` jsonb; unknown fields → `VALIDATION`. A record can be saved while it is `draft` or `changes_requested` (`INVALID_STATE` otherwise).
+
 | Function | Arguments | Rules |
 |---|---|---|
-| `app_select_paper` | paper_id | Only before the paper-change cutoff week or while no paper is approved |
-| `app_submit_record` | target_type (exploration, paper, paper_analysis, repository, objective, draft_section, evaluation, final), target_id | Validates required fields (WORKFLOW_SPEC §2.1); status → `submitted`/`verification_pending`; stage → `awaiting_approval`; notifies the reviewers |
-| `app_new_objective_version` | project_id | Copies the latest version into a new draft |
-| `app_new_analysis_version` / `app_new_draft_version` | paper_id / project_id, section | Same pattern |
-| `app_record_execution_attempt` | repository_id, attempted_at, outcome, errors, debugging_notes, evidence_ids[] | Moves `execution_status` among the student-controlled states |
-| `app_submit_task` | task_id, progress_report, evidence_ids[] | Creates submission version n+1; sets `is_late`; task → `submitted`/`resubmitted`. S6+ tasks require S5 approved (`GATE_NOT_MET`) |
-| `app_address_correction` | correction_id, response, evidence_ids[] | open → addressed |
-| `app_set_blocked` | target ('task'\|'project'), id, blocked bool, reason | Student (own), a reviewer, lead, HOD |
+| `app_save_exploration` | project_id, data {candidate_topics[], keywords[], sources[{name,url}], proposed_problem} | One exploration per project. Blank list entries are dropped; source links must be https |
+| `app_save_paper` | project_id, data {title, authors[], pub_year, venue, doi, url, pdf_drive_url, abstract, research_problem, relevance_note, code_availability, foundational_justification}, paper_id? | New candidate (at most 10 open) or edit of a `candidate`. DOI may be pasted as a doi.org link |
+| `app_select_paper` | paper_id | Candidate only; not while another paper is submitted or approved |
+| `app_withdraw_paper` | paper_id, reason? | Candidate: the student or a reviewer. Approved: a reviewer until the end of the cutoff week, then only the HOD (WF-08); reason ≥ 10 characters. Later stages built on the paper are reopened and their records superseded |
+| `app_save_analysis` / `app_new_analysis_version` | paper_id, data / paper_id | For the selected paper. A new version starts from the approved one |
+| `app_save_repository` | project_id, data {repo_url, owner, name, commit_ref, language, framework, dataset_requirements, environment, setup_instructions} | Needs a selected paper. A repository for an earlier paper is kept as history (`is_current = false`) |
+| `app_record_execution_attempt` | repository_id, attempted_at, outcome, errors?, debugging_notes?, notes?, evidence jsonb[{category,url,description}] | Moves `execution_status` among the student-controlled states. Failed/blocked need the errors. Attempts are immutable |
+| `app_save_objective` / `app_new_objective_version` | project_id, data / project_id | Versioned; one approved version per project |
+| `app_add_evidence` | project_id, stage_key, category, url, description | https only (SEC-12); description ≥ 10 characters |
+| `app_submit_record` | target_type (exploration, paper, paper_analysis, repository, objective), target_id | Validates required fields (WORKFLOW_SPEC §2.1) and lists everything missing; refuses while corrections are open; status → `submitted` / `verification_pending`; stage → `awaiting_approval` (unless an approved version is already in force). The repository needs a successful attempt with evidence (WF-01) |
+| `app_address_correction` | correction_id, response, evidence_ids[]? | open → addressed; response ≥ 10 characters |
+| `app_submit_task` | task_id, progress_report, evidence_ids[] | (Phase 5) Creates submission version n+1; sets `is_late`; task → `submitted`/`resubmitted`. S6+ tasks require S5 approved (`GATE_NOT_MET`) |
+| `app_set_blocked` | target ('task'\|'project'), id, blocked bool, reason | (Phase 5) Student (own), a reviewer, lead, HOD |
 
 ### 4.4 Faculty workflow
 
 | Function | Arguments | Auth / rules |
 |---|---|---|
 | `app_start_review` | submission_id | Reviewer of the project; task → `under_review` |
-| `app_record_review` | target_type, target_id, outcome, observations, comments, corrections text[] | `comment_only`: any faculty-level user. Other outcomes: a reviewer of the project. `changes_requested` requires ≥ 1 correction. Applies the state transitions in WORKFLOW_SPEC §3 and the gate checks; runs the duplicate-paper check on paper approval |
+| `app_record_review` | target_type, target_id, outcome, observations, comments, corrections text[] | `comment_only`: any faculty-level user; changes nothing and creates no corrections. Other outcomes: a reviewer of the project, only for a record waiting for review. `changes_requested` requires ≥ 1 correction; `rejected` requires observations; `accepted` requires every correction on the record verified or waived and the stages it depends on approved (`GATE_NOT_MET`). Applies the state transitions in WORKFLOW_SPEC §3; runs the duplicate-paper check on paper approval (`DUPLICATE_PAPER`) |
 | `app_resolve_correction` | correction_id, action ('verify'\|'reopen'\|'waive'), note | Reviewer of the project; `waive` and `reopen` require a note |
 | `app_verify_evidence` | evidence_id, verification, note | Reviewer of the project |
 | `app_approve_stage_exception` | project_id, stage_key, reason | Guide, lead or HOD; S4 only in v1 |
@@ -158,14 +165,6 @@ The `admin-users` Edge Function gained `invite_student {student_id}` (HOD/admin 
 
 **CSV export** is done in the browser from the same views (no separate endpoint), and only for HOD, admin and lead.
 
-## 6. Content write endpoints (PostgREST)
+## 6. Content writes
 
-The student's own project only; editable states only; protected columns are rejected by a trigger.
-
-`POST/PATCH` on:
-- `research_explorations`, `papers`, `paper_analyses`, `code_repositories`;
-- `objective_versions`, `implementation_items`, `evaluation_results`, `paper_drafts`;
-- `evidence`;
-- `final_deliverables` (`evidence_id`, `notes` only).
-
-There are no `DELETE` policies on these tables. Students withdraw candidate papers (`status = withdrawn`) or drop items (`status = dropped`) instead.
+**Changed in Phase 3–4:** there are no PostgREST write endpoints. API roles have `SELECT` only, and every content change goes through the workflow functions in §4, which check the caller, the lock rules and the required fields. Direct `POST/PATCH/DELETE` on any table fails with "permission denied" (SEC-09). Business records are never deleted: candidate papers are withdrawn, versions are superseded, repositories are replaced, and reviews and execution attempts are immutable.
