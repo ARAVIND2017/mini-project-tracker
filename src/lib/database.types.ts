@@ -85,6 +85,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'assignment_requests_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'assignment_requests_requested_by_fkey';
             columns: ['requested_by'];
             isOneToOne: false;
@@ -225,6 +232,13 @@ export type Database = {
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'code_repositories_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
         ];
       };
       corrections: {
@@ -293,6 +307,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'corrections_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
           },
           {
             foreignKeyName: 'corrections_resolved_by_fkey';
@@ -389,6 +410,102 @@ export type Database = {
           },
         ];
       };
+      evaluation_results: {
+        Row: {
+          actual: string;
+          corrective_action: string | null;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          evidence_id: string;
+          expected: string;
+          id: string;
+          kind: Database['public']['Enums']['evaluation_kind'];
+          metric_name: string | null;
+          metric_value: number | null;
+          passed: boolean;
+          project_id: string;
+          status: Database['public']['Enums']['record_status'];
+          submitted_at: string | null;
+          test_case: string;
+          updated_at: string;
+        };
+        Insert: {
+          actual: string;
+          corrective_action?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          evidence_id: string;
+          expected: string;
+          id?: string;
+          kind: Database['public']['Enums']['evaluation_kind'];
+          metric_name?: string | null;
+          metric_value?: number | null;
+          passed: boolean;
+          project_id: string;
+          status?: Database['public']['Enums']['record_status'];
+          submitted_at?: string | null;
+          test_case: string;
+          updated_at?: string;
+        };
+        Update: {
+          actual?: string;
+          corrective_action?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          evidence_id?: string;
+          expected?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['evaluation_kind'];
+          metric_name?: string | null;
+          metric_value?: number | null;
+          passed?: boolean;
+          project_id?: string;
+          status?: Database['public']['Enums']['record_status'];
+          submitted_at?: string | null;
+          test_case?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'evaluation_results_decided_by_fkey';
+            columns: ['decided_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evaluation_results_evidence_id_fkey';
+            columns: ['evidence_id'];
+            isOneToOne: false;
+            referencedRelation: 'evidence';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evaluation_results_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evaluation_results_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evaluation_results_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
       evidence: {
         Row: {
           category: Database['public']['Enums']['evidence_category'];
@@ -467,6 +584,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'evidence_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'evidence_task_fkey';
             columns: ['task_id'];
             isOneToOne: false;
@@ -542,6 +666,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'execution_attempts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'execution_attempts_recorded_by_fkey';
             columns: ['recorded_by'];
             isOneToOne: false;
@@ -606,6 +737,207 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
+          },
+        ];
+      };
+      final_deliverables: {
+        Row: {
+          created_at: string;
+          evidence_id: string | null;
+          id: string;
+          item: Database['public']['Enums']['deliverable_item'];
+          notes: string | null;
+          project_id: string;
+          updated_at: string;
+          verification: Database['public']['Enums']['evidence_verification'];
+          verification_note: string | null;
+          verified_at: string | null;
+          verified_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          evidence_id?: string | null;
+          id?: string;
+          item: Database['public']['Enums']['deliverable_item'];
+          notes?: string | null;
+          project_id: string;
+          updated_at?: string;
+          verification?: Database['public']['Enums']['evidence_verification'];
+          verification_note?: string | null;
+          verified_at?: string | null;
+          verified_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          evidence_id?: string | null;
+          id?: string;
+          item?: Database['public']['Enums']['deliverable_item'];
+          notes?: string | null;
+          project_id?: string;
+          updated_at?: string;
+          verification?: Database['public']['Enums']['evidence_verification'];
+          verification_note?: string | null;
+          verified_at?: string | null;
+          verified_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'final_deliverables_evidence_id_fkey';
+            columns: ['evidence_id'];
+            isOneToOne: false;
+            referencedRelation: 'evidence';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_deliverables_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_deliverables_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_deliverables_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
+            foreignKeyName: 'final_deliverables_verified_by_fkey';
+            columns: ['verified_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      final_signoffs: {
+        Row: {
+          comments: string | null;
+          created_at: string;
+          decision: Database['public']['Enums']['signoff_decision'];
+          id: string;
+          originality_remark: string;
+          panel_member_id: string;
+          project_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          comments?: string | null;
+          created_at?: string;
+          decision: Database['public']['Enums']['signoff_decision'];
+          id?: string;
+          originality_remark: string;
+          panel_member_id: string;
+          project_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          comments?: string | null;
+          created_at?: string;
+          decision?: Database['public']['Enums']['signoff_decision'];
+          id?: string;
+          originality_remark?: string;
+          panel_member_id?: string;
+          project_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'final_signoffs_panel_member_id_fkey';
+            columns: ['panel_member_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_signoffs_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_signoffs_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_signoffs_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
+      implementation_items: {
+        Row: {
+          commit_links: string[];
+          created_at: string;
+          id: string;
+          is_planned: boolean;
+          notes: string | null;
+          project_id: string;
+          status: Database['public']['Enums']['item_status'];
+          title: string;
+          type: Database['public']['Enums']['implementation_type'];
+          updated_at: string;
+        };
+        Insert: {
+          commit_links?: string[];
+          created_at?: string;
+          id?: string;
+          is_planned?: boolean;
+          notes?: string | null;
+          project_id: string;
+          status?: Database['public']['Enums']['item_status'];
+          title: string;
+          type: Database['public']['Enums']['implementation_type'];
+          updated_at?: string;
+        };
+        Update: {
+          commit_links?: string[];
+          created_at?: string;
+          id?: string;
+          is_planned?: boolean;
+          notes?: string | null;
+          project_id?: string;
+          status?: Database['public']['Enums']['item_status'];
+          title?: string;
+          type?: Database['public']['Enums']['implementation_type'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'implementation_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'implementation_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'implementation_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
           },
         ];
       };
@@ -797,6 +1129,146 @@ export type Database = {
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'objective_versions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
+      panel_members: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          panel_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          panel_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          panel_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'panel_members_panel_id_fkey';
+            columns: ['panel_id'];
+            isOneToOne: false;
+            referencedRelation: 'panels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'panel_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      panel_projects: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          panel_id: string;
+          project_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          panel_id: string;
+          project_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          panel_id?: string;
+          project_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'panel_projects_panel_id_fkey';
+            columns: ['panel_id'];
+            isOneToOne: false;
+            referencedRelation: 'panels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'panel_projects_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'panel_projects_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'panel_projects_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
+      panels: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          semester_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          semester_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          semester_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'panels_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
         ];
       };
       paper_analyses: {
@@ -894,6 +1366,87 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_analyses_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
+      paper_drafts: {
+        Row: {
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          doc_url: string | null;
+          id: string;
+          notes: string | null;
+          project_id: string;
+          section: Database['public']['Enums']['draft_section'];
+          status: Database['public']['Enums']['record_status'];
+          submitted_at: string | null;
+          updated_at: string;
+          version: number;
+        };
+        Insert: {
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          doc_url?: string | null;
+          id?: string;
+          notes?: string | null;
+          project_id: string;
+          section: Database['public']['Enums']['draft_section'];
+          status?: Database['public']['Enums']['record_status'];
+          submitted_at?: string | null;
+          updated_at?: string;
+          version: number;
+        };
+        Update: {
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          doc_url?: string | null;
+          id?: string;
+          notes?: string | null;
+          project_id?: string;
+          section?: Database['public']['Enums']['draft_section'];
+          status?: Database['public']['Enums']['record_status'];
+          submitted_at?: string | null;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'paper_drafts_decided_by_fkey';
+            columns: ['decided_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_drafts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_drafts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_drafts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
           },
         ];
       };
@@ -1014,6 +1567,13 @@ export type Database = {
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'papers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
         ];
       };
       profiles: {
@@ -1100,6 +1660,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'project_reviewers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'project_reviewers_request_fkey';
             columns: ['added_via_request'];
             isOneToOne: false;
@@ -1164,6 +1731,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_stages_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
           },
         ];
       };
@@ -1335,6 +1909,13 @@ export type Database = {
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'research_explorations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: true;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
         ];
       };
       review_authorizations: {
@@ -1401,6 +1982,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'review_authorizations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'review_authorizations_revoked_by_fkey';
             columns: ['revoked_by'];
             isOneToOne: false;
@@ -1457,6 +2045,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reviews_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
           },
           {
             foreignKeyName: 'reviews_reviewer_id_fkey';
@@ -1725,6 +2320,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'submissions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'submissions_submitted_by_fkey';
             columns: ['submitted_by'];
             isOneToOne: false;
@@ -1959,6 +2561,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'tasks_template_id_fkey';
             columns: ['template_id'];
             isOneToOne: false;
@@ -1969,6 +2578,15 @@ export type Database = {
       };
     };
     Views: {
+      v_duplicate_warnings: {
+        Row: {
+          kind: string | null;
+          project_ids: string[] | null;
+          semester_id: string | null;
+          value: string | null;
+        };
+        Relationships: [];
+      };
       v_projects: {
         Row: {
           awaiting_review: number | null;
@@ -2124,10 +2742,38 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
             foreignKeyName: 'tasks_template_id_fkey';
             columns: ['template_id'];
             isOneToOne: false;
             referencedRelation: 'task_templates';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      v_timeliness: {
+        Row: {
+          avg_days_late: number | null;
+          avg_review_cycles: number | null;
+          overdue_without_submission: number | null;
+          project_id: string | null;
+          semester_id: string | null;
+          submitted_late: number | null;
+          submitted_on_time: number | null;
+          tasks_due: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
             referencedColumns: ['id'];
           },
         ];
@@ -2226,6 +2872,13 @@ export type Database = {
         Args: { p_paper_id: string };
         Returns: string;
       };
+      app_new_draft_version: {
+        Args: {
+          p_project_id: string;
+          p_section: Database['public']['Enums']['draft_section'];
+        };
+        Returns: string;
+      };
       app_new_objective_version: {
         Args: { p_project_id: string };
         Returns: string;
@@ -2254,6 +2907,16 @@ export type Database = {
           p_outcome: Database['public']['Enums']['review_outcome'];
           p_target_id: string;
           p_target_type: Database['public']['Enums']['review_target'];
+        };
+        Returns: string;
+      };
+      app_record_signoff: {
+        Args: {
+          p_comments?: string;
+          p_corrections?: string[];
+          p_decision: Database['public']['Enums']['signoff_decision'];
+          p_originality_remark: string;
+          p_project_id: string;
         };
         Returns: string;
       };
@@ -2289,8 +2952,24 @@ export type Database = {
         Args: { p_data: Json; p_paper_id: string };
         Returns: string;
       };
+      app_save_draft: {
+        Args: {
+          p_data: Json;
+          p_project_id: string;
+          p_section: Database['public']['Enums']['draft_section'];
+        };
+        Returns: string;
+      };
+      app_save_evaluation_result: {
+        Args: { p_data: Json; p_project_id: string; p_result_id?: string };
+        Returns: string;
+      };
       app_save_exploration: {
         Args: { p_data: Json; p_project_id: string };
+        Returns: string;
+      };
+      app_save_implementation_item: {
+        Args: { p_data: Json; p_item_id?: string; p_project_id: string };
         Returns: string;
       };
       app_save_objective: {
@@ -2314,6 +2993,16 @@ export type Database = {
           p_target: string;
         };
         Returns: undefined;
+      };
+      app_set_deliverable: {
+        Args: {
+          p_description: string;
+          p_item: Database['public']['Enums']['deliverable_item'];
+          p_notes?: string;
+          p_project_id: string;
+          p_url: string;
+        };
+        Returns: string;
       };
       app_set_expertise: {
         Args: {
@@ -2339,6 +3028,16 @@ export type Database = {
       app_set_my_drive_folder: {
         Args: { p_student_id: string; p_url: string };
         Returns: undefined;
+      };
+      app_set_panel: {
+        Args: {
+          p_member_ids: string[];
+          p_name: string;
+          p_panel_id?: string;
+          p_project_ids: string[];
+          p_semester_id: string;
+        };
+        Returns: string;
       };
       app_set_project_domain: {
         Args: { p_domain_id: string | null; p_project_id: string };
@@ -2409,6 +3108,14 @@ export type Database = {
       app_upsert_task_template: {
         Args: { p_data: Json; p_semester_id: string; p_template_id?: string };
         Returns: string;
+      };
+      app_verify_deliverable: {
+        Args: {
+          p_deliverable_id: string;
+          p_note?: string;
+          p_verification: Database['public']['Enums']['evidence_verification'];
+        };
+        Returns: undefined;
       };
       app_verify_evidence: {
         Args: {

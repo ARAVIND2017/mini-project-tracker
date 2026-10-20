@@ -9,20 +9,28 @@ import { toAppError } from '@/lib/errors';
 import { getProjectWorkspace, type ProjectWorkspace } from '@/lib/research';
 import { useActiveContext } from '../auth/authContext';
 import { AnalysisStage } from './AnalysisStage';
+import { EvaluationStage } from './EvaluationStage';
 import { ExplorationStage } from './ExplorationStage';
+import { FinalStage } from './FinalStage';
+import { ImplementationStage } from './ImplementationStage';
 import { ObjectivesStage } from './ObjectivesStage';
 import { PaperStage } from './PaperStage';
 import { RepositoryStage } from './RepositoryStage';
 import { WeeklyTasks } from './WeeklyTasks';
+import { WritingStage } from './WritingStage';
 import { WorkspaceContext, type WorkspaceValue } from './workspaceContext';
 
-/** Stages with screens in this release (Phase 4). S6–S9 follow in Phases 5–6. */
+/** Every stage has its screen (S1–S5 since Phase 4, S6–S9 since Phase 6). */
 const OPEN_STAGES: readonly StageKey[] = [
   'exploration',
   'paper_selection',
   'paper_analysis',
   'code_execution',
   'objectives',
+  'implementation',
+  'evaluation',
+  'paper_writing',
+  'final',
 ];
 
 // Remounting a stage when its records change resets the form to the saved values.
@@ -71,6 +79,7 @@ export function ProjectWorkspacePage() {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ['workspace', projectId] }),
           queryClient.invalidateQueries({ queryKey: ['tasks', projectId] }),
+          queryClient.invalidateQueries({ queryKey: ['final', projectId] }),
           queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
           queryClient.invalidateQueries({ queryKey: ['projects'] }),
           queryClient.invalidateQueries({ queryKey: ['my-projects'] }),
@@ -134,6 +143,10 @@ export function ProjectWorkspacePage() {
     paper_analysis: <AnalysisStage key={stageVersionKey(ws, 'paper_analysis')} />,
     code_execution: <RepositoryStage key={stageVersionKey(ws, 'code_execution')} />,
     objectives: <ObjectivesStage key={stageVersionKey(ws, 'objectives')} />,
+    implementation: <ImplementationStage />,
+    evaluation: <EvaluationStage />,
+    paper_writing: <WritingStage />,
+    final: <FinalStage />,
   };
 
   return (

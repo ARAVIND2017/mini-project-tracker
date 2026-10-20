@@ -137,12 +137,20 @@ Built in Phase 4 for S1–S5. Forms send every field as `p_data` jsonb; unknown 
 | `app_override` | project_id, kind ('duplicate_paper'\|'objective_gate'), reason | HOD only |
 | `app_record_meeting` | semester_id, held_on, title, notes, attendee_ids[], outcomes jsonb[] | Faculty-level user |
 
-### 4.5 Panels and sign-off
+### 4.5 S6–S9, panels and sign-off (built in Phase 6)
 
 | Function | Arguments | Auth / rules |
 |---|---|---|
-| `app_set_panel` | semester_id, panel_id?, name, member_ids[], project_ids[] | HOD |
-| `app_record_signoff` | project_id, decision, originality_remark, comments, corrections text[] | Panel member for the project. Preconditions: S7 and S8 approved, checklist verified, no open/addressed corrections. Completes the project when the quorum is reached |
+| `app_save_implementation_item` | project_id, data {title, type, is_planned, status, commit_links[], notes}, item_id? | The student; needs S5 approved or the HOD's override; https commit links; a dropped item needs a reason. S6 itself completes when its weekly tasks are verified |
+| `app_save_evaluation_result` | project_id, data {kind, test_case, expected, actual, metric_name, metric_value, passed, corrective_action, evidence_url, evidence_description}, result_id? | The student. Every result has an evidence link (DATA-08); a failed test needs a corrective action; locked while the set is submitted. The set is submitted with `app_submit_record('evaluation', project_id)` (needs ≥ 1 baseline and ≥ 1 proposed result) and reviewed with `app_record_review('evaluation', project_id, …)` |
+| `app_save_draft` / `app_new_draft_version` | project_id, section, data {doc_url, notes} / project_id, section | The student; versioned per section; submitted with `app_submit_record('draft_section', id)`. S8 is approved when all ten sections are approved |
+| `app_set_deliverable` | project_id, item, url, description, notes? | The student; locked while the panel reviews. Replacing a link resets its verification |
+| `app_verify_deliverable` | deliverable_id, verification, note? | A reviewer of the project or a member of its panel; a note for rejected/not accessible |
+| `app_set_panel` | semester_id, name, member_ids[], project_ids[], panel_id? | HOD. Members are faculty of the semester (a guide may sit on the panel); a project sits on one active panel; removed members/projects are switched off |
+| `app_submit_record('final', project_id)` | | The student. Needs S7 and S8 approved, every required checklist item added, and a panel |
+| `app_record_signoff` | project_id, decision, originality_remark, comments, corrections text[] | An active member of the project's panel, after the student submitted S9. `approve` needs S7/S8 approved, every checklist item verified and no open or addressed correction in the project (WF-05); `changes_required` needs ≥ 1 correction and returns S9 to the student. When approvals reach the quorum (semester setting; default every member) S9 is approved and the project is completed (WF-06). A member's later decision replaces the earlier one; both stay in the audit log. Panel members may also verify the corrections they raised |
+
+**Read models:** `v_timeliness` (per project: tasks due, first submissions on time/late, average days late, overdue without a submission, review cycles) and `v_duplicate_warnings` (shared DOI, paper title, repository link or project title within a semester). `v_review_queue` also lists S7 result sets, S8 sections and projects waiting for the panel.
 
 ### 4.6 Notifications
 

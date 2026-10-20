@@ -30,7 +30,13 @@ export function ReviewSection({
   currentId,
   awaiting,
   label,
+  commentOnly = false,
+  extraResolver = false,
 }: {
+  /** Also lets this viewer verify, reopen or waive corrections (panel members on S9). */
+  extraResolver?: boolean;
+  /** Decisions are made elsewhere (the S9 sign-off); faculty can only comment here. */
+  commentOnly?: boolean;
   targetType: ReviewTarget;
   /** Every version the thread should show (e.g. all analysis versions). */
   targetIds: string[];
@@ -80,7 +86,11 @@ export function ReviewSection({
                   {ws.corrections
                     .filter((c) => c.review_id === r.id)
                     .map((c) => (
-                      <CorrectionItem key={c.id} correction={c} />
+                      <CorrectionItem
+                        key={c.id}
+                        correction={c}
+                        canResolve={viewer.isReviewer || extraResolver}
+                      />
                     ))}
                 </ul>
               )}
@@ -92,7 +102,7 @@ export function ReviewSection({
         <ReviewForm
           targetType={targetType}
           targetId={currentId}
-          canDecide={viewer.isReviewer && awaiting}
+          canDecide={viewer.isReviewer && awaiting && !commentOnly}
           isReviewer={viewer.isReviewer}
           outstanding={outstanding}
           label={label}
@@ -102,7 +112,13 @@ export function ReviewSection({
   );
 }
 
-function CorrectionItem({ correction: c }: { correction: Correction }) {
+function CorrectionItem({
+  correction: c,
+  canResolve,
+}: {
+  correction: Correction;
+  canResolve: boolean;
+}) {
   const { ws, viewer, readOnly, busy, act } = useWorkspace();
   const [mode, setMode] = useState<'address' | 'reopen' | 'waive' | null>(null);
   const [text, setText] = useState('');
@@ -149,7 +165,7 @@ function CorrectionItem({ correction: c }: { correction: Correction }) {
               Mark as addressed
             </Button>
           )}
-          {viewer.isReviewer && c.status === 'addressed' && (
+          {canResolve && c.status === 'addressed' && (
             <>
               <Button
                 variant="secondary"
@@ -163,7 +179,7 @@ function CorrectionItem({ correction: c }: { correction: Correction }) {
               </Button>
             </>
           )}
-          {viewer.isReviewer && (c.status === 'open' || c.status === 'addressed') && (
+          {canResolve && (c.status === 'open' || c.status === 'addressed') && (
             <Button variant="secondary" onClick={() => setMode('waive')}>
               Waive
             </Button>

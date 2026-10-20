@@ -39,6 +39,7 @@ export function SemesterNav() {
     },
     { to: `/semesters/${semesterId}/roster`, label: 'Roster', end: false, show: staff },
     { to: `/semesters/${semesterId}/plan`, label: 'Plan', end: false, show: staff },
+    { to: `/semesters/${semesterId}/panels`, label: 'Panels', end: false, show: staff },
     { to: `/semesters/${semesterId}/domains`, label: 'Domains', end: false, show: true },
     {
       to: `/semesters/${semesterId}/people`,

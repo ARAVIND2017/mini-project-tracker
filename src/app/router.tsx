@@ -70,6 +70,10 @@ export const router = createBrowserRouter([
                 lazy: lazyPage(() => import('./pages/PlanRoute')),
               },
               {
+                path: 'semesters/:semesterId/panels',
+                lazy: lazyPage(() => import('./pages/PanelsRoute')),
+              },
+              {
                 path: 'semesters/:semesterId/review-queue',
                 lazy: lazyPage(() => import('./pages/ReviewQueueRoute')),
               },
