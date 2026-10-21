@@ -229,4 +229,28 @@ test('dashboards, notifications, meetings and audit (Phase 7)', async ({ browser
     await expect(hod.getByRole('cell', { name: 'project.escalated' })).toBeVisible();
     await screenshotAs(hod, 'p7-09-audit-log');
   });
+
+  await test.step("the HOD copies this semester's setup into a new draft semester", async () => {
+    const next = sqlAs(
+      HOD,
+      `select public.app_create_semester('Demo Semester (Phase 7, next)', '2027-28', '{}'::jsonb)`,
+    );
+    await hod.goto(`/semesters/${next}`);
+    const card = hod.getByRole('region', { name: 'Copy the setup from an earlier semester' });
+    await card.getByLabel('Copy from').selectOption({ label: `${SEMESTER} (2026-27)` });
+    hod.once('dialog', (d) => d.accept());
+    await card.getByRole('button', { name: 'Copy setup' }).click();
+    await expect(card.getByRole('status')).toContainText('2 new domain(s)');
+    await hod.goto(`/semesters/${next}/domains`);
+    await expect(hod.getByText('Machine Learning').first()).toBeVisible();
+    await expect(hod.getByText('Web Systems').first()).toBeVisible();
+    expect(
+      sql(`select count(*) from public.task_templates where semester_id = '${next}' and is_active`),
+    ).toBe(
+      sql(
+        `select count(*) from public.task_templates where semester_id = '${semesterId}' and is_active`,
+      ),
+    );
+    await screenshotAs(hod, 'p7-10-copied-setup');
+  });
 });

@@ -114,7 +114,7 @@ test('HOD sets up a semester, faculty and students take part (Phases 1–3)', as
     await screenshot(hod, 'people-and-roles');
   });
 
-  await test.step('invitation emails arrive (local email catcher)', async () => {
+  await test.step('FUN-04 invitation emails arrive (local email catcher)', async () => {
     const mail = await browser.newPage();
     await mail.goto('http://localhost:54324/');
     await expect(mail.getByText(LEAD).first()).toBeVisible();
@@ -266,7 +266,7 @@ test('HOD sets up a semester, faculty and students take part (Phases 1–3)', as
     await screenshot(student, 'student-my-project-with-guide');
   });
 
-  await test.step('privacy: the student cannot open another student’s data', async () => {
+  await test.step('privacy (journey 7): the student cannot open another student’s data', async () => {
     await student.goto(`${semesterUrl}/roster`);
     await expect(student.getByText('This page is for faculty.', { exact: false })).toBeVisible();
     await expect(student.getByText('Demo Student 02')).toHaveCount(0);
@@ -281,6 +281,17 @@ test('HOD sets up a semester, faculty and students take part (Phases 1–3)', as
     });
     expect(rows.map((r) => r.full_name)).toEqual(['Demo Student 01']);
     await screenshot(student, 'student-cannot-see-roster');
+
+    // Journey 7: opening another student's project by its address shows "Not found",
+    // without confirming the project exists.
+    const otherProject = sql(
+      "select p.id from public.projects p join public.students s on s.id = p.student_id where s.full_name = 'Demo Student 02'",
+    );
+    await student.goto(`/projects/${otherProject}`);
+    await expect(
+      student.getByText('Project not found, or you do not have access to it.'),
+    ).toBeVisible();
+    await expect(student.getByText('Demo Student 02')).toHaveCount(0);
   });
 
   await test.step('the audit trail recorded every action', async () => {

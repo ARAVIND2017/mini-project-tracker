@@ -3357,6 +3357,10 @@ export type Database = {
         Args: { p_semester_id: string };
         Returns: undefined;
       };
+      app_copy_semester_config: {
+        Args: { p_from_semester: string; p_to_semester: string };
+        Returns: Json;
+      };
       app_create_semester: {
         Args: { p_academic_year?: string; p_name: string; p_settings?: Json };
         Returns: string;

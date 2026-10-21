@@ -14,6 +14,7 @@ import {
 } from '@/lib/api';
 import { useActiveContext, useAuth } from '../auth/authContext';
 import { SemesterDashboard } from '../dashboard/SemesterDashboard';
+import { CopySetupCard } from './CopySetupCard';
 import { SemesterForm } from './SemesterForm';
 import { SemesterNav } from './SemesterNav';
 
@@ -69,6 +70,12 @@ export function SemesterDetailPage() {
             <SemesterDashboard semesterId={semesterId} />
           </div>
         )}
+
+      {canConfigure && s.status === 'draft' && (
+        <div className="mb-6">
+          <CopySetupCard semesterId={semesterId} />
+        </div>
+      )}
 
       {canConfigure && s.status === 'draft' && (
         <Card title="Activation checklist">

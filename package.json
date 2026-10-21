@@ -21,7 +21,8 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:db && pnpm build",
     "stack:start": "bash scripts/local-stack/start.sh",
     "stack:stop": "bash scripts/local-stack/stop.sh",
-    "test:e2e": "LOCAL_ANON_KEY=$(cat .local-stack/anon.jwt) playwright test"
+    "test:e2e": "LOCAL_ANON_KEY=$(cat .local-stack/anon.jwt) playwright test",
+    "test:e2e:prod": "VITE_SUPABASE_URL=http://localhost:54321 VITE_SUPABASE_PUBLISHABLE_KEY=$(cat .local-stack/anon.jwt) CSP_EXTRA_CONNECT='http://localhost:54321 ws://localhost:54321' pnpm build && (node scripts/serve-dist.mjs 4173 & sleep 1; LOCAL_ANON_KEY=$(cat .local-stack/anon.jwt) PW_BASE_URL=http://localhost:4173 playwright test; s=$?; pkill -f serve-dist.mjs; exit $s)"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

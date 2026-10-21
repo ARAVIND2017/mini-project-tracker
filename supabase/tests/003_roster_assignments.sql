@@ -342,7 +342,7 @@ select tests.assert_raises(format($$select public.app_set_project_title(%L, 'Hij
 select tests.reset();
 select tests.assert_eq((select title from public.projects where id = (select id from u where name = 'proj1')),
   'Improving model robustness', 'students set their working title');
-select tests.pass('HOD changes, domain and title');
+select tests.pass('HOD changes, domain and title / FUN-05 Drive folder links');
 
 -- Withdrawal ---------------------------------------------------------------------------------------
 select tests.login_as((select id from u where name = 'p3hod'));

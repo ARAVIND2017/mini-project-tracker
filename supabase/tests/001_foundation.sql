@@ -110,7 +110,7 @@ select tests.assert_raises(
   format($$delete from public.t_fixture where id = %L$$, :'fixture_id'),
   'FORBIDDEN: t_fixture records cannot be changed or deleted', 'prevent_mutation blocks deletes by API roles');
 select tests.reset();
-select tests.pass('prevent_mutation');
+select tests.pass('AUD-02 prevent_mutation (audit and immutable records)');
 
 -- Helper schema is private ----------------------------------------------------
 select tests.login_as((select id from ids where name = 'user'));

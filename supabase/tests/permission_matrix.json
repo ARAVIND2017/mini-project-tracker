@@ -34,6 +34,13 @@
           "allow": ["hod", "admin_all"]
         },
         {
+          "id": "semester.copy_config",
+          "label": "Copy a semester's setup into a draft semester",
+          "rpc": "app_copy_semester_config",
+          "sql": "select public.app_copy_semester_config({sem}, {sem_draft})",
+          "allow": ["hod", "admin_all"]
+        },
+        {
           "id": "semester.activate",
           "label": "Activate a semester",
           "rpc": "app_activate_semester",

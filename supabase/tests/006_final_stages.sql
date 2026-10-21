@@ -64,7 +64,7 @@ select public.app_save_implementation_item(:'pa', '{"title": "Phone app", "type"
   "status": "dropped", "notes": "Out of scope after review"}');
 select tests.reset();
 select tests.assert_eq((select count(*)::int from public.implementation_items where project_id = :'pa'), 2, 'items are recorded');
-select tests.pass('S6 implementation items and the objectives gate');
+select tests.pass('FUN-12 S6 implementation items and the objectives gate');
 
 -- =============================================================================
 -- S7 evaluation (DATA-08)
@@ -152,7 +152,7 @@ select tests.login_as((select id from u where name = 'p6studa'));
 select public.app_new_draft_version(:'pa', 'introduction') as d_intro2 \gset
 select tests.reset();
 select tests.assert_eq((select version from public.paper_drafts where id = :'d_intro2'), 2, 'a new section version can be started');
-select tests.pass('S8 draft sections');
+select tests.pass('FUN-13 S8 draft sections');
 
 -- =============================================================================
 -- S9 checklist, panels and sign-off (WF-05, WF-06)
@@ -228,7 +228,7 @@ select tests.assert_eq((select status::text from public.project_stages where pro
 select tests.assert_eq((select count(*)::int from public.final_signoffs where project_id = :'pa'), 2, 'one sign-off per member');
 select tests.assert(
   (select count(*) from public.audit_log where action = 'signoff.recorded' and project_id = :'pa') = 3, 'every decision is in the audit log');
-select tests.pass('S9 panels and sign-off / WF-05 / WF-06');
+select tests.pass('S9 FUN-14 checklist, FUN-15 panels, FUN-16 sign-off / WF-05 / WF-06');
 
 -- =============================================================================
 -- Read models, isolation

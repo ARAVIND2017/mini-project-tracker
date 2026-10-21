@@ -57,13 +57,19 @@ Responses: `200 {ok: true, user_id}` · `400 {code: 'VALIDATION'}` · `403 {code
 
 Who may call each function is listed in **Auth**. Every function re-checks the permission itself; RLS alone is not relied on.
 
+### 4.0 Account context — any signed-in user
+
+| Function | Arguments | Returns | Auth / rules |
+|---|---|---|---|
+| `app_my_context` | — | jsonb | The caller's profile, active flag, system roles (with delegated permissions) and semester memberships. Used by the app at sign-in. A deactivated user gets `active: false` and nothing else |
+
 ### 4.1 Semester and configuration — HOD (admin with `manage_config`)
 
 | Function | Arguments | Returns | Auth / rules |
 |---|---|---|---|
 | `app_create_semester` | name, academic_year, settings jsonb | semester id | HOD/admin. Unknown or invalid settings → `VALIDATION`. (Phase 5 adds the default milestones and task templates.) |
 | `app_update_semester` | semester_id, settings jsonb | void | HOD/admin. Same settings keys as create; closed semesters → `INVALID_STATE` |
-| `app_copy_semester_config` | from_semester, to_semester | void | Copies domains, criteria, milestones, templates — not people |
+| `app_copy_semester_config` | from_semester, to_semester | jsonb counts | HOD/admin with `manage_config`; the target must be a **draft** (`INVALID_STATE` otherwise). Copies domains (matched by name), evaluation criteria, milestones (by week) and the active task templates, keeping domain overrides. The target's current templates are switched off, not deleted. Never copies people, the roster or projects. Audited as `semester.config_copied`. (Built in Phase 8.) |
 | `app_activate_semester` / `app_close_semester` | semester_id | void | Activation requires a start date and a lead (the domain requirement is added in Phase 3); only active semesters can be closed |
 | `app_set_lead` | semester_id, user_id | void | HOD only. Demotes the previous lead to faculty; re-points `reports_to` |
 | `app_set_membership` | semester_id, user_id, role, is_active | membership id | HOD; an admin with `manage_users` may only add *new* faculty memberships. The HOD needs no membership (`VALIDATION`) |

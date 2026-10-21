@@ -215,7 +215,20 @@ select tests.assert_eq((select min(days_overdue) from public.v_task_flags where 
 select tests.assert_eq((select open_corrections + addressed_corrections from public.v_project_overview where id = :'pa'), 1,
   'corrections are counted');
 select tests.reset();
-select tests.pass('DATA-09 progress and the overview');
+-- FUN-11: one definition of overdue everywhere (deadline passed, not verified): the
+-- dashboard count, the flags view and the weekly task list agree for every project.
+select tests.login_as((select id from u where name = 'p7hod'));
+select tests.assert_eq(
+  (select count(*)::int from public.v_project_overview o
+   where o.semester_id = :'sem'
+     and o.overdue_tasks <> (select count(*) from public.v_tasks t where t.project_id = o.id and t.is_overdue)),
+  0, 'FUN-11 the overview counts overdue tasks exactly like the weekly task list');
+select tests.assert_eq(
+  (select count(*)::int from public.v_task_flags f where f.semester_id = :'sem' and f.is_overdue),
+  (select count(*)::int from public.v_tasks t where t.semester_id = :'sem' and t.is_overdue),
+  'FUN-11 the flags view lists the same overdue tasks');
+select tests.reset();
+select tests.pass('DATA-09 progress and the overview / FUN-11 one overdue rule');
 
 -- =============================================================================
 -- Faculty workload: the lead and the HOD only

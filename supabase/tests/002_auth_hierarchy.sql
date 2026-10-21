@@ -110,7 +110,7 @@ select tests.assert_raises(format($$select public.app_update_semester(%L, '{"lab
   'VALIDATION: A semester setting is out of range', 'lab must end after it starts');
 select public.app_update_semester(:'sem', '{"lab_weekday": 2, "lab_start": "14:00", "lab_end": "16:40"}');
 select tests.reset();
-select tests.pass('semester settings validation');
+select tests.pass('FUN-01 semester settings validation');
 
 -- SEC-02 / DATA-01: memberships and the lead ------------------------------------------------
 select tests.login_as((select id from u where name = 'hod'));
@@ -224,7 +224,7 @@ select tests.assert_raises(format($$select public.app_update_semester(%L, '{"max
 select tests.assert_raises(format($$select public.app_set_membership(%L, %L, 'faculty')$$, :'sem', (select id from u where name = 'outsider')),
   'INVALID_STATE: A closed semester cannot be changed', 'closed semesters keep their memberships');
 select tests.reset();
-select tests.pass('semester lifecycle');
+select tests.pass('FUN-03 semester lifecycle (draft, active, closed read-only)');
 
 -- SEC-04: deactivated accounts -----------------------------------------------------------------
 select tests.login_as((select id from u where name = 'hod'));

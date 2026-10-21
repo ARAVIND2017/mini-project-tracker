@@ -71,6 +71,25 @@ export function closeSemester(id: string) {
   return run(requireSupabase().rpc('app_close_semester', { p_semester_id: id }));
 }
 
+export interface CopyResult {
+  domains_added: number;
+  criteria_added: number;
+  milestones: number;
+  templates: number;
+  templates_switched_off: number;
+}
+
+/** Copies domains, criteria, milestones and task templates into a draft semester (not people). */
+export async function copySemesterConfig(fromId: string, toId: string): Promise<CopyResult> {
+  const data = await run(
+    requireSupabase().rpc('app_copy_semester_config', {
+      p_from_semester: fromId,
+      p_to_semester: toId,
+    }),
+  );
+  return data as unknown as CopyResult;
+}
+
 // ---------------------------------------------------------------- people -----------
 export interface Member {
   id: string;

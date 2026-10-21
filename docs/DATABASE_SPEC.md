@@ -247,6 +247,8 @@ Read: `can_view_project`. Write: the student may change `title` while S5 is not 
 
 | View | Purpose |
 |---|---|
+| `v_projects` | One row per project: student, slot, roster status, domain, guide name, co-reviewer names, pending requests, current stage, blocked, completed, items waiting for review (base of the overview) |
+| `v_tasks` | Tasks with their latest submission, computed overdue flag and deadline in the semester timezone |
 | `v_project_overview` | One row per project: student, slot, domain, **guide name**, current stage, stage statuses, progress, overdue count, blocked, open corrections, selected paper title, execution status, objective status |
 | `v_review_queue` | Pending items (task submissions and stage records awaiting review) with age, project, guide, eligible reviewers |
 | `v_faculty_workload` | Per faculty member: guided projects, pending reviews, average turnaround, reviews this week |

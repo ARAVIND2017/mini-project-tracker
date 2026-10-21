@@ -96,9 +96,7 @@ Date: 2026-10-21 · Status: **built, tested and deployed to Supabase. Awaiting a
 ## Things to know
 
 - **A performance fix was needed.** The first version of the overview checked access on every task and correction row and took about 3.7 s with 30 projects. It now checks access once per project (about 0.2 s). The review queue is fast once the database has statistics, which the live database keeps up to date automatically; the test gathers them first to match.
-- **Two kinds of "overdue":**
-  - "Overdue tasks" on the dashboards counts tasks past their deadline that still need something from the student, including a task returned with changes requested.
-  - "Overdue, not submitted" under timeliness counts only tasks never submitted.
+- **"Overdue" (corrected in Phase 8):** the dashboards first counted only tasks waiting for the student, while the weekly task list followed the spec (deadline passed and not verified). Since Phase 8 every screen uses the spec's rule (WORKFLOW_SPEC §1, AC6.7), and a test checks that they agree. "Overdue, not submitted" under timeliness is a separate, named figure.
 - **The lead's audit log** shows entries about the semester's projects. Semester-wide entries (settings, roster, meetings) are visible to the HOD and admins. This is the access rule set in Phase 3.
 - **Notifications are in-app only.** Email delivery would need the SMTP settings from the Phase 2 report.
 - **Still waiting on you:**

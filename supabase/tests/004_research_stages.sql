@@ -239,7 +239,7 @@ select tests.login_as((select id from u where name = 'p4fac'));
 select tests.assert_raises(format($$select public.app_withdraw_paper(%L, 'Changing direction now')$$, :'paper_a'),
   'FORBIDDEN: Only a reviewer of this project can withdraw an approved paper', 'unassigned faculty cannot withdraw');
 select tests.reset();
-select tests.pass('S2 papers / DATA-06 / WF-08');
+select tests.pass('S2 papers / VAL-02 / DATA-06 / WF-08');
 
 -- =============================================================================
 -- S3 Analysis: changes requested → resubmitted → approved; versions (WF-07)
@@ -296,7 +296,7 @@ select public.app_record_review('paper_analysis', :'an2', 'accepted', 'Version 2
 select tests.reset();
 select tests.assert_eq((select status::text from public.paper_analyses where id = :'an1'), 'superseded', 'the old version is superseded');
 select tests.assert_eq((select status::text from public.paper_analyses where id = :'an2'), 'approved', 'the new version is approved');
-select tests.pass('S3 analysis versions / WF-07');
+select tests.pass('S3 analysis versions / VAL-01 / WF-07');
 
 -- =============================================================================
 -- S4 Repository and execution (WF-01), exception

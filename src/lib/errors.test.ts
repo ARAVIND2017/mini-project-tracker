@@ -1,6 +1,6 @@
 import { AppError, toAppError } from './errors';
 
-describe('toAppError', () => {
+describe('toAppError (SEC-13)', () => {
   it('parses database RPC errors of the form "CODE: message"', () => {
     const err = toAppError({
       message: 'GATE_NOT_MET: Appoint a lead faculty first',
