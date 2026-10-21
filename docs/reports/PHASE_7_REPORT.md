@@ -77,7 +77,7 @@ Date: 2026-10-21 · Status: **built, tested and deployed to Supabase. Awaiting a
   - the progress formula, including approved exceptions, partly verified stages, changed weights and the absence of any stored progress;
   - overdue counting;
   - the workload view limited to the lead and the HOD;
-  - **performance with 30 projects × 16 weeks:** every dashboard view answers in about 0.1–0.2 s, against a 1 s limit.
+  - **performance with 30 projects × 16 weeks:** every dashboard view answers in under 0.2 s, against a 1 s limit (best of three runs, locally and on GitHub Actions). The timings are shown on each CI run.
 - **End-to-end:** a new journey, `e2e/phase7-dashboards.spec.ts`, runs alongside the four earlier ones. All five pass in a real browser from a clean reset, in about 1.5 minutes. The new journey covers:
   - the student sees the review in the inbox and on the dashboard;
   - the guide's dashboard lists only their students;
