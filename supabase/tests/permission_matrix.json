@@ -1,0 +1,622 @@
+{
+  "$comment": "Authorization matrix (TEST_PLAN.md §2, USER_ROLES_AND_PERMISSIONS.md §2). supabase/tests/900_permission_matrix.sql runs every action as every caller, each attempt rolled back; docs/PERMISSION_MATRIX.md is generated from this file (node scripts/permission-matrix.mjs). 'allow' lists the callers who may do it; every other caller must be refused (FORBIDDEN, NOT_FOUND or permission denied). 'strict': false means an allowed caller may still get a validation or state error from the fixture (the point is that they are not refused). {name} is replaced with the fixture id of that name.",
+  "callers": {
+    "anon": "Not signed in",
+    "student_own": "Student (own project A)",
+    "student_other": "Student (project B)",
+    "faculty": "Faculty, unassigned to A",
+    "guide": "Guide of A",
+    "co_reviewer": "Co-reviewer of A",
+    "authorized": "Faculty with a valid review authorization for A",
+    "expired_auth": "Faculty whose authorization for A expired",
+    "lead": "Lead faculty",
+    "hod": "HOD",
+    "admin_all": "Admin with every delegated permission",
+    "admin_none": "Admin with no delegated permission",
+    "deactivated": "Deactivated faculty (was co-reviewer of A)"
+  },
+  "sections": [
+    {
+      "title": "Administration and configuration (§2.1)",
+      "actions": [
+        {
+          "id": "semester.create",
+          "label": "Create a semester",
+          "rpc": "app_create_semester",
+          "sql": "select public.app_create_semester('Matrix ' || gen_random_uuid(), null, '{}')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "semester.update",
+          "label": "Edit semester settings",
+          "rpc": "app_update_semester",
+          "sql": "select public.app_update_semester({sem}, '{\"max_students\": 40}')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "semester.activate",
+          "label": "Activate a semester",
+          "rpc": "app_activate_semester",
+          "sql": "select public.app_activate_semester({sem_draft})",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "semester.close",
+          "label": "Close a semester",
+          "rpc": "app_close_semester",
+          "sql": "select public.app_close_semester({sem})",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "user.deactivate",
+          "label": "Deactivate a user",
+          "rpc": "app_set_user_active",
+          "sql": "select public.app_set_user_active({newuser}, false, 'Matrix test')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "role.grant",
+          "label": "Grant a system role",
+          "rpc": "app_grant_system_role",
+          "sql": "select public.app_grant_system_role({newuser}, 'admin', '{}')",
+          "allow": ["hod"]
+        },
+        {
+          "id": "role.revoke",
+          "label": "Revoke a system role",
+          "rpc": "app_revoke_system_role",
+          "sql": "select public.app_revoke_system_role({admin_none}, 'admin')",
+          "allow": ["hod"]
+        },
+        {
+          "id": "lead.set",
+          "label": "Appoint the lead",
+          "rpc": "app_set_lead",
+          "sql": "select public.app_set_lead({sem}, {faculty})",
+          "allow": ["hod"]
+        },
+        {
+          "id": "membership.set",
+          "label": "Add a new faculty member to a semester",
+          "rpc": "app_set_membership",
+          "sql": "select public.app_set_membership({sem}, {newuser}, 'faculty')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "membership.change",
+          "label": "Change an existing semester role",
+          "rpc": "app_set_membership",
+          "sql": "select public.app_set_membership({sem}, {faculty}, 'faculty', false)",
+          "allow": ["hod"]
+        },
+        {
+          "id": "roster.import",
+          "label": "Import the roster",
+          "rpc": "app_import_roster",
+          "sql": "select public.app_import_roster({sem}, '[{\"slot_no\": 9, \"full_name\": \"Matrix Student\"}]', false)",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "roster.slots",
+          "label": "Add empty roster slots",
+          "rpc": "app_add_empty_slots",
+          "sql": "select public.app_add_empty_slots({sem}, 6)",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "roster.update",
+          "label": "Edit a roster entry",
+          "rpc": "app_update_student",
+          "sql": "select public.app_update_student({sb_student}, '{\"institution_id\": \"MATRIX2\"}')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "roster.withdraw",
+          "label": "Withdraw a student (HOD only)",
+          "rpc": "app_withdraw_student",
+          "sql": "select public.app_withdraw_student({sb_student}, 'Matrix test')",
+          "allow": ["hod"]
+        },
+        {
+          "id": "roster.link",
+          "label": "Link a student account",
+          "rpc": "app_link_student",
+          "sql": "select public.app_link_student({sc_student}, {newuser})",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "domain.upsert",
+          "label": "Manage domains",
+          "rpc": "app_upsert_domain",
+          "sql": "select public.app_upsert_domain({sem}, 'Matrix domain')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "criterion.upsert",
+          "label": "Manage evaluation criteria",
+          "rpc": "app_upsert_criterion",
+          "sql": "select public.app_upsert_criterion({d_ml}, 'Matrix criterion')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "milestone.upsert",
+          "label": "Manage milestones",
+          "rpc": "app_upsert_milestone",
+          "sql": "select public.app_upsert_milestone({sem}, 3, '{\"stage_key\": \"paper_selection\", \"title\": \"Matrix milestone\"}')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "template.upsert",
+          "label": "Manage task templates",
+          "rpc": "app_upsert_task_template",
+          "sql": "select public.app_upsert_task_template({sem}, '{\"week_no\": 3, \"stage_key\": \"paper_selection\", \"title\": \"Matrix task\", \"acceptance_criteria\": [\"Matrix criterion\"]}')",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "tasks.generate",
+          "label": "Generate tasks",
+          "rpc": "app_generate_tasks",
+          "sql": "select public.app_generate_tasks({sem}, {pb})",
+          "allow": ["hod", "admin_all"]
+        },
+        {
+          "id": "project.domain",
+          "label": "Set a project's domain",
+          "rpc": "app_set_project_domain",
+          "sql": "select public.app_set_project_domain({pb}, {d_web})",
+          "allow": ["hod", "admin_all"]
+        }
+      ]
+    },
+    {
+      "title": "Assignments (§2.2)",
+      "actions": [
+        {
+          "id": "expertise.own",
+          "label": "Record own domain expertise",
+          "rpc": "app_set_expertise",
+          "sql": "select public.app_set_expertise({sem}, array[{d_web}]::uuid[])",
+          "allow": ["hod", "lead", "faculty", "guide", "co_reviewer", "authorized", "expired_auth"]
+        },
+        {
+          "id": "assignment.request",
+          "label": "Request to guide a project",
+          "rpc": "app_request_assignment",
+          "sql": "select public.app_request_assignment({pb}, 'guide', auth.uid(), 'Machine learning is my area')",
+          "allow": ["hod", "lead", "faculty", "guide", "co_reviewer", "authorized", "expired_auth"],
+          "strict": false
+        },
+        {
+          "id": "assignment.propose",
+          "label": "Propose a co-reviewer for another faculty member",
+          "rpc": "app_request_assignment",
+          "sql": "select public.app_request_assignment({pb}, 'co_reviewer', {spare_faculty}, 'Second opinion on the model')",
+          "allow": ["hod", "lead"]
+        },
+        {
+          "id": "assignment.decide",
+          "label": "Approve or reject assignment requests",
+          "rpc": "app_decide_assignment_request",
+          "sql": "select public.app_decide_assignment_request({request}, true)",
+          "allow": ["hod"]
+        },
+        {
+          "id": "assignment.cancel",
+          "label": "Cancel a request (the requester)",
+          "rpc": "app_cancel_assignment_request",
+          "sql": "select public.app_cancel_assignment_request({request})",
+          "allow": ["faculty", "hod"]
+        },
+        {
+          "id": "guide.assign",
+          "label": "Assign or reassign a guide directly",
+          "rpc": "app_assign_guide",
+          "sql": "select public.app_assign_guide({pb}, {faculty})",
+          "allow": ["hod"]
+        },
+        {
+          "id": "coreviewer.remove",
+          "label": "Remove a co-reviewer",
+          "rpc": "app_remove_co_reviewer",
+          "sql": "select public.app_remove_co_reviewer({pa}, {co_reviewer})",
+          "allow": ["hod"]
+        },
+        {
+          "id": "authorization.grant",
+          "label": "Grant a review authorization",
+          "rpc": "app_grant_review_authorization",
+          "sql": "select public.app_grant_review_authorization({pb}, {faculty}, now() + interval '1 day')",
+          "allow": ["hod", "lead"]
+        },
+        {
+          "id": "authorization.revoke",
+          "label": "Revoke a review authorization",
+          "rpc": "app_revoke_review_authorization",
+          "sql": "select public.app_revoke_review_authorization({authorization})",
+          "allow": ["hod", "lead"]
+        },
+        {
+          "id": "panel.set",
+          "label": "Form panels",
+          "rpc": "app_set_panel",
+          "sql": "select public.app_set_panel({sem}, 'Matrix panel', array[{lead}]::uuid[], array[{pb}]::uuid[])",
+          "allow": ["hod"]
+        }
+      ]
+    },
+    {
+      "title": "Project content and workflow (§2.3)",
+      "actions": [
+        {
+          "id": "exploration.save",
+          "label": "Edit stage content: exploration",
+          "rpc": "app_save_exploration",
+          "sql": "select public.app_save_exploration({pa}, '{\"keywords\": [\"matrix\"]}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "paper.save",
+          "label": "Edit stage content: candidate paper",
+          "rpc": "app_save_paper",
+          "sql": "select public.app_save_paper({pa}, '{\"title\": \"Matrix candidate paper\"}')",
+          "allow": ["student_own"]
+        },
+        {
+          "id": "paper.select",
+          "label": "Select a candidate paper",
+          "rpc": "app_select_paper",
+          "sql": "select public.app_select_paper({paper})",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "paper.withdraw",
+          "label": "Withdraw a candidate paper (the student or a reviewer)",
+          "rpc": "app_withdraw_paper",
+          "sql": "select public.app_withdraw_paper({paper}, 'Matrix test')",
+          "allow": ["student_own", "guide", "co_reviewer", "authorized", "lead", "hod"],
+          "strict": false
+        },
+        {
+          "id": "analysis.save",
+          "label": "Edit stage content: paper analysis",
+          "rpc": "app_save_analysis",
+          "sql": "select public.app_save_analysis({paper}, '{}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "analysis.version",
+          "label": "Start a new analysis version",
+          "rpc": "app_new_analysis_version",
+          "sql": "select public.app_new_analysis_version({paper})",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "repository.save",
+          "label": "Edit stage content: code repository",
+          "rpc": "app_save_repository",
+          "sql": "select public.app_save_repository({pa}, '{\"repo_url\": \"https://code.example.test/matrix\"}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "attempt.record",
+          "label": "Record an execution attempt",
+          "rpc": "app_record_execution_attempt",
+          "sql": "select public.app_record_execution_attempt({repository}, now(), 'failed', 'Matrix error output')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "objective.save",
+          "label": "Edit stage content: objectives",
+          "rpc": "app_save_objective",
+          "sql": "select public.app_save_objective({pa}, '{}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "objective.version",
+          "label": "Start a new objectives version",
+          "rpc": "app_new_objective_version",
+          "sql": "select public.app_new_objective_version({pa})",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "implementation.save",
+          "label": "Edit stage content: implementation items",
+          "rpc": "app_save_implementation_item",
+          "sql": "select public.app_save_implementation_item({pa}, '{\"title\": \"Matrix item\", \"type\": \"feature\"}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "evaluation.save",
+          "label": "Edit stage content: evaluation results",
+          "rpc": "app_save_evaluation_result",
+          "sql": "select public.app_save_evaluation_result({pa}, '{}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "draft.save",
+          "label": "Edit stage content: paper sections",
+          "rpc": "app_save_draft",
+          "sql": "select public.app_save_draft({pa}, 'introduction', '{\"notes\": \"Matrix\"}')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "draft.version",
+          "label": "Start a new section version",
+          "rpc": "app_new_draft_version",
+          "sql": "select public.app_new_draft_version({pa}, 'introduction')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "deliverable.set",
+          "label": "Edit stage content: final checklist",
+          "rpc": "app_set_deliverable",
+          "sql": "select public.app_set_deliverable({pa}, 'readme', 'https://drive.example.test/readme', 'Matrix readme')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "title.set",
+          "label": "Set the working title (the student; the HOD at any time)",
+          "rpc": "app_set_project_title",
+          "sql": "select public.app_set_project_title({pa}, 'Matrix working title')",
+          "allow": ["student_own", "hod"]
+        },
+        {
+          "id": "drive.set",
+          "label": "Set the Drive folder link",
+          "rpc": "app_set_my_drive_folder",
+          "sql": "select public.app_set_my_drive_folder({sa_student}, 'https://drive.example.test/matrix')",
+          "allow": ["student_own"]
+        },
+        {
+          "id": "evidence.add",
+          "label": "Add evidence links",
+          "rpc": "app_add_evidence",
+          "sql": "select public.app_add_evidence({pa}, 'exploration', 'other', 'https://drive.example.test/matrix', 'Matrix evidence link')",
+          "allow": ["student_own"]
+        },
+        {
+          "id": "task.start",
+          "label": "Start a task",
+          "rpc": "app_start_task",
+          "sql": "select public.app_start_task({task_open})",
+          "allow": ["student_own"]
+        },
+        {
+          "id": "task.submit",
+          "label": "Submit a task",
+          "rpc": "app_submit_task",
+          "sql": "select public.app_submit_task({task_open}, repeat('Matrix progress report. ', 6), '[{\"category\": \"other\", \"url\": \"https://drive.example.test/m\", \"description\": \"Matrix evidence\"}]')",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "record.submit",
+          "label": "Submit a stage record for approval",
+          "rpc": "app_submit_record",
+          "sql": "select public.app_submit_record('paper', {paper})",
+          "allow": ["student_own"],
+          "strict": false
+        },
+        {
+          "id": "blocked.set",
+          "label": "Mark a project as blocked",
+          "rpc": "app_set_blocked",
+          "sql": "select public.app_set_blocked('project', {pa}, true, 'Matrix blocked reason')",
+          "allow": ["student_own", "guide", "co_reviewer", "authorized", "lead", "hod"]
+        },
+        {
+          "id": "review.comment",
+          "label": "Comment (comment only)",
+          "rpc": "app_record_review",
+          "sql": "select public.app_record_review('task_submission', {submission}, 'comment_only', null, 'Matrix comment')",
+          "allow": ["faculty", "guide", "co_reviewer", "authorized", "expired_auth", "lead", "hod"]
+        },
+        {
+          "id": "review.decide",
+          "label": "Record a review outcome",
+          "rpc": "app_record_review",
+          "sql": "select public.app_record_review('task_submission', {submission}, 'accepted', 'Matrix accepted')",
+          "allow": ["guide", "co_reviewer", "authorized", "lead", "hod"]
+        },
+        {
+          "id": "review.start",
+          "label": "Open a submission for review",
+          "rpc": "app_start_review",
+          "sql": "select public.app_start_review({submission})",
+          "allow": ["guide", "co_reviewer", "authorized", "lead", "hod"]
+        },
+        {
+          "id": "exception.approve",
+          "label": "Approve a stage exception",
+          "rpc": "app_approve_stage_exception",
+          "sql": "select public.app_approve_stage_exception({pa}, 'code_execution', 'No public code for this paper; reimplement in S6')",
+          "allow": ["guide", "lead", "hod"],
+          "strict": false
+        },
+        {
+          "id": "override",
+          "label": "Override the duplicate-paper check or the S6 gate",
+          "rpc": "app_override",
+          "sql": "select public.app_override({pa}, 'objective_gate', 'Matrix override reason')",
+          "allow": ["hod"],
+          "strict": false
+        },
+        {
+          "id": "correction.address",
+          "label": "Mark a correction addressed",
+          "rpc": "app_address_correction",
+          "sql": "select public.app_address_correction({correction_open}, 'Matrix response to the correction')",
+          "allow": ["student_own"]
+        },
+        {
+          "id": "correction.resolve",
+          "label": "Verify or waive a correction",
+          "rpc": "app_resolve_correction",
+          "sql": "select public.app_resolve_correction({correction_addressed}, 'verify')",
+          "allow": ["guide", "co_reviewer", "authorized", "lead", "hod"]
+        },
+        {
+          "id": "evidence.verify",
+          "label": "Set evidence verification",
+          "rpc": "app_verify_evidence",
+          "sql": "select public.app_verify_evidence({evidence}, 'verified')",
+          "allow": ["guide", "co_reviewer", "authorized", "lead", "hod"]
+        },
+        {
+          "id": "deliverable.verify",
+          "label": "Verify a final checklist item",
+          "rpc": "app_verify_deliverable",
+          "sql": "select public.app_verify_deliverable({deliverable}, 'verified')",
+          "allow": ["guide", "co_reviewer", "authorized", "lead", "hod"],
+          "strict": false
+        },
+        {
+          "id": "meeting.record",
+          "label": "Record a review meeting",
+          "rpc": "app_record_meeting",
+          "sql": "select public.app_record_meeting({sem}, now() - interval '1 hour', 'Matrix meeting', null, '{}', '[]')",
+          "allow": ["faculty", "guide", "co_reviewer", "authorized", "expired_auth", "lead", "hod"]
+        },
+        {
+          "id": "signoff.record",
+          "label": "Record a final sign-off (panel members)",
+          "rpc": "app_record_signoff",
+          "sql": "select public.app_record_signoff({pa}, 'approve', 'Original work; matrix remark')",
+          "allow": ["guide", "co_reviewer"],
+          "strict": false
+        }
+      ]
+    },
+    {
+      "title": "Reporting, notifications and account (§2.4)",
+      "actions": [
+        {
+          "id": "escalate",
+          "label": "Escalate a project to the HOD",
+          "rpc": "app_escalate_to_hod",
+          "sql": "select public.app_escalate_to_hod({pa}, 'Matrix escalation note')",
+          "allow": ["lead", "hod"]
+        },
+        {
+          "id": "notifications.read",
+          "label": "Mark own notifications as read",
+          "rpc": "app_mark_notifications_read",
+          "sql": "select public.app_mark_notifications_read()",
+          "allow": [
+            "student_own",
+            "student_other",
+            "faculty",
+            "guide",
+            "co_reviewer",
+            "authorized",
+            "expired_auth",
+            "lead",
+            "hod",
+            "admin_all",
+            "admin_none"
+          ]
+        },
+        {
+          "id": "reminders.refresh",
+          "label": "Refresh own deadline reminders",
+          "rpc": "app_refresh_my_reminders",
+          "sql": "select public.app_refresh_my_reminders()",
+          "allow": [
+            "student_own",
+            "student_other",
+            "faculty",
+            "guide",
+            "co_reviewer",
+            "authorized",
+            "expired_auth",
+            "lead",
+            "hod",
+            "admin_all",
+            "admin_none"
+          ]
+        },
+        {
+          "id": "context",
+          "label": "Read own account context",
+          "rpc": "app_my_context",
+          "sql": "select public.app_my_context()",
+          "allow": [
+            "student_own",
+            "student_other",
+            "faculty",
+            "guide",
+            "co_reviewer",
+            "authorized",
+            "expired_auth",
+            "lead",
+            "hod",
+            "admin_all",
+            "admin_none",
+            "deactivated"
+          ]
+        }
+      ]
+    }
+  ],
+  "reads": {
+    "$comment": "Rows about project A each caller can read: tables with a project_id follow can_view_project (project_visible), except staff_only_tables, which the project's student does not see. The views listed follow their own rules.",
+    "project_visible": [
+      "student_own",
+      "faculty",
+      "guide",
+      "co_reviewer",
+      "authorized",
+      "expired_auth",
+      "lead",
+      "hod",
+      "admin_all",
+      "admin_none"
+    ],
+    "views": [
+      {
+        "view": "v_faculty_workload",
+        "where": "semester_id = {sem}",
+        "visible": ["lead", "hod", "admin_all", "admin_none"]
+      },
+      {
+        "view": "audit_log",
+        "where": "project_id = {pa}",
+        "visible": ["lead", "hod", "admin_all", "admin_none"]
+      },
+      {
+        "view": "audit_log",
+        "where": "project_id is null and semester_id = {sem}",
+        "visible": ["hod", "admin_all", "admin_none"]
+      },
+      {
+        "view": "meeting_attendees",
+        "where": "true",
+        "visible": [
+          "faculty",
+          "guide",
+          "co_reviewer",
+          "authorized",
+          "expired_auth",
+          "lead",
+          "hod",
+          "admin_all",
+          "admin_none"
+        ]
+      }
+    ],
+    "staff_only_tables": ["assignment_requests", "review_authorizations"]
+  }
+}

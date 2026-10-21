@@ -191,18 +191,19 @@ select tests.assert_eq((public.app_my_context() ->> 'active'), 'true', 'context 
 select tests.reset();
 select tests.pass('row-level visibility');
 
--- Profile self-service --------------------------------------------------------------------
+-- Profiles cannot be edited directly (security review S8-1: names come from the HOD's
+-- invitations and the roster, so nobody can rename themselves, e.g. to look like faculty).
 select tests.login_as((select id from u where name = 'stud1'));
-update public.profiles set full_name = 'Test Student 01 (edited)' where id = (select id from u where name = 'stud1');
+select tests.assert_raises(format($$update public.profiles set full_name = 'Dr Someone' where id = %L$$, (select id from u where name = 'stud1')),
+  'permission denied%', 'users cannot rename themselves');
 select tests.assert_raises(format($$update public.profiles set is_active = false where id = %L$$, (select id from u where name = 'stud1')),
   'permission denied%', 'users cannot change their active flag');
-update public.profiles set full_name = 'Hacked' where id = (select id from u where name = 'fac1');
+select tests.assert_raises(format($$update public.profiles set full_name = 'Hacked' where id = %L$$, (select id from u where name = 'fac1')),
+  'permission denied%', 'users cannot edit other profiles');
 select tests.reset();
-select tests.assert_eq((select full_name from public.profiles where id = (select id from u where name = 'stud1')),
-  'Test Student 01 (edited)', 'users can edit their own name');
 select tests.assert_eq((select full_name from public.profiles where id = (select id from u where name = 'fac1')),
-  'Test Faculty One', 'users cannot edit other profiles');
-select tests.pass('profile self-service');
+  'Test Faculty One', 'profiles are unchanged');
+select tests.pass('profiles are read-only to users');
 
 -- Activation gates and closed semesters ---------------------------------------------------------
 select tests.login_as((select id from u where name = 'hod'));

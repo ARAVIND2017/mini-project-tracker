@@ -6,7 +6,7 @@
 #   PG_BIN=/path/to/bin pnpm test:db
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PG_BIN="${PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)}"
 PG_BIN="${PG_BIN:-$(pg_config --bindir 2>/dev/null || true)}"
 if [[ -z "$PG_BIN" || ! -x "$PG_BIN/initdb" ]]; then

@@ -21,6 +21,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm format:check
+      - run: node scripts/permission-matrix.mjs --check # docs/PERMISSION_MATRIX.md matches the tested matrix
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build # includes the bundle secret scan (SEC-11)

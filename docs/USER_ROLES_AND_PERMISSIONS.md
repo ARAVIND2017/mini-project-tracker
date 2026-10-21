@@ -27,7 +27,9 @@ HOD / System Administrator — Dr. Vidyavathi B M   (system role, all semesters)
 
 ## 2. Authorization matrix
 
-Key: ✅ allowed · 👁 view only · 🅿 only as reviewer of the project · 🅶 only as guide · ⚙ admin, if the HOD delegated that permission · ✋ propose only (HOD approves) · ❌ not allowed
+The tested, per-function version of this matrix (13 kinds of caller) is [PERMISSION_MATRIX.md](PERMISSION_MATRIX.md), generated from `supabase/tests/permission_matrix.json`.
+
+Key: ✅ allowed · 👁 view only · 🅿 only as reviewer of the project · 🅶 only as guide · ⚙ admin, if the HOD delegated that permission · ✋ propose only (the lead asks; the HOD makes the change — there is no separate proposal record except for guide and co-reviewer requests) · ❌ not allowed
 
 ### 2.1 Administration and configuration
 
@@ -38,7 +40,9 @@ Key: ✅ allowed · 👁 view only · 🅿 only as reviewer of the project · �
 | Invite users, deactivate users | ✅ | ⚙ | ❌ | ❌ | ❌ |
 | Grant or revoke system roles (HOD/admin) | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Appoint the lead, change semester roles or `reports_to` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Add a new faculty member to a semester (part of inviting them) | ✅ | ⚙ | ❌ | ❌ | ❌ |
 | Import or edit the student roster | ✅ | ⚙ | ❌ | ❌ | ❌ |
+| Withdraw a student | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Manage domains, milestones, task templates, evaluation criteria | ✅ | ⚙ | ✋ | ❌ | ❌ |
 | Generate or regenerate tasks for projects | ✅ | ⚙ | ❌ | ❌ | ❌ |
 | Set a project's domain | ✅ | ⚙ | ✋ | ❌ | ❌ |
@@ -64,6 +68,8 @@ Key: ✅ allowed · 👁 view only · 🅿 only as reviewer of the project · �
 | View other students' projects | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Create or edit stage content (exploration, papers, analysis, repository, attempts, objectives, implementation, evaluation, drafts, checklist) | ❌ | ❌ | ❌ | ❌ | Own project, while editable |
 | Add evidence links | ❌ | ❌ | ❌ | ❌ | Own project |
+| Withdraw a candidate paper (not yet submitted) | ✅ | ❌ | ✅ | 🅿 | Own project |
+| Change the working title | ✅ (at any time) | ❌ | ❌ | ❌ | Own project, until objectives are approved |
 | Submit a task / resubmit | ❌ | ❌ | ❌ | ❌ | Own project |
 | Submit a stage record for approval | ❌ | ❌ | ❌ | ❌ | Own project |
 | Mark a task or project as Blocked (with reason) | ✅ | ❌ | ✅ | 🅿 | Own project |

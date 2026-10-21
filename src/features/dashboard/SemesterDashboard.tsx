@@ -190,7 +190,7 @@ function OverallDashboard({ semesterId, rows: all }: { semesterId: string; rows:
                 <li key={t.task_id}>
                   <Link
                     to={`/projects/${t.project_id}?view=tasks`}
-                    className="text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+                    className="text-blue-700 underline underline-offset-2 dark:text-blue-300"
                   >
                     {t.student_name ?? `Slot ${t.slot_no}`}
                   </Link>{' '}
@@ -221,7 +221,7 @@ function OverallDashboard({ semesterId, rows: all }: { semesterId: string; rows:
                 <li key={p.id}>
                   <Link
                     to={`/projects/${p.id}`}
-                    className="text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+                    className="text-blue-700 underline underline-offset-2 dark:text-blue-300"
                   >
                     {p.student_name ?? `Slot ${p.slot_no}`}
                   </Link>{' '}
@@ -433,7 +433,7 @@ function FacultyDashboard({
                 <li key={`${i.item_type}-${i.item_id}`}>
                   <Link
                     to={itemLink(i)}
-                    className="text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+                    className="text-blue-700 underline underline-offset-2 dark:text-blue-300"
                   >
                     {i.student_name ?? `Slot ${i.slot_no}`}: {i.title}
                   </Link>{' '}
@@ -470,7 +470,7 @@ function FacultyDashboard({
                   <span>
                     <Link
                       to={`/projects/${p.id}`}
-                      className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+                      className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-300"
                     >
                       {p.student_name ?? `Slot ${p.slot_no}`}
                     </Link>
