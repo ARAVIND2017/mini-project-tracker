@@ -1,0 +1,42 @@
+name: Deploy database to staging
+
+# Manual only. Pushes the migrations and the admin-users Edge Function to the staging
+# Supabase project (DEPLOYMENT_AND_SECURITY.md §3). Needs these repository secrets:
+#   SUPABASE_ACCESS_TOKEN  — a personal access token of the Supabase account
+#   STAGING_PROJECT_REF    — the staging project's reference id
+#   STAGING_DB_PASSWORD    — the staging database password
+# The Edge Function's own secrets (service-role key) are set in the Supabase dashboard,
+# never here. The frontend is deployed by the static host from the same commit.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  database:
+    runs-on: ubuntu-24.04
+    environment: staging
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: ${{ secrets.STAGING_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secrets are set
+        run: |
+          for v in SUPABASE_ACCESS_TOKEN PROJECT_REF SUPABASE_DB_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::error::Missing secret for $v"; exit 1; fi
+          done
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest # pin to the version you install locally once staging exists
+      - run: supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+      - name: Show pending migrations
+        run: supabase migration list --password "$SUPABASE_DB_PASSWORD"
+      - run: supabase db push --password "$SUPABASE_DB_PASSWORD"
+      - run: supabase functions deploy admin-users --project-ref "$PROJECT_REF"

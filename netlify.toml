@@ -1,0 +1,8 @@
+# Netlify: build settings only. Headers and the SPA fallback are written into dist/
+# (_headers, _redirects) by scripts/host-config.mjs during `pnpm build`.
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/scan-bundle.mjs dist",
+    "build": "tsc -b && vite build && node scripts/host-config.mjs dist --check-vercel && node scripts/scan-bundle.mjs dist",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",

@@ -68,10 +68,28 @@ It also documents that a student does not see the assignment requests or review 
 - **Coverage:** each step is tied to the PRD acceptance criteria (AC1.1–AC11.2) and has an expected result and a result column.
 - **Defects and sign-off:** there is a defect list with severities and a sign-off line for the HOD. The exit rule is no open critical or high defects.
 
+### 6. Staging preparation (ready to deploy)
+
+- **Security headers for any host**, all from one source (`scripts/host-config.mjs`):
+  - a strict Content Security Policy: only the site's own scripts and styles, network calls only to Supabase, no framing;
+  - nosniff, a referrer policy, a permissions policy and HSTS;
+  - long caching for hashed assets.
+  
+  The build writes `_headers` and `_redirects` (Netlify and Cloudflare Pages) and checks that `vercel.json` matches.
+- **Tested in a real browser:** all six journeys pass against the **production build** served with exactly these headers (`scripts/serve-dist.mjs`). A new check, `e2e/zz-production-build.spec.ts`:
+  - confirms the headers;
+  - confirms deep links work;
+  - finds **no CSP violations** on nine main screens.
+  
+  It caught one problem: the validation library probed for `eval` on every page. It is now configured not to, without loosening the policy.
+- **"Deploy database to staging"**: a manual GitHub Actions workflow. It pushes the migrations and the Edge Function, and stops unless its three secrets are set.
+- **UAT helper `scripts/uat/prepare-s6.sql`**: fast-forwards one fictional project to S6 for session 3. It refuses any student whose name does not start with "UAT ".
+- **[STAGING_RUNBOOK.md](../STAGING_RUNBOOK.md)**: the remaining clicks for Supabase, the three hosts and the pre-UAT checks.
+
 ## Test results
 
 - **Database tests:** all files pass, including the new matrix (884 cells) and the per-column write check.
-- **End-to-end:** **6 journeys pass** from a clean reset in about 2 minutes: the five earlier ones plus accessibility.
+- **End-to-end:** **6 journeys pass** from a clean reset in about 2 minutes, on the dev server and also on the production build with its security headers (plus the production-build check).
 - **App tests:** 80 passing. **Lint, typecheck, formatting, build, secret scan, dependency audit:** pass. CI now also checks that the permission matrix document is up to date.
 
 ## What needs you before Phase 8 can be closed

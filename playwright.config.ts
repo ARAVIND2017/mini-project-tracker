@@ -9,17 +9,21 @@ export default defineConfig({
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:5173',
+    // PW_BASE_URL runs the tests against another server, e.g. the production build with
+    // its security headers (scripts/serve-dist.mjs); the dev server is then not started.
+    baseURL: process.env.PW_BASE_URL ?? 'http://localhost:5173',
     viewport: { width: 1280, height: 860 },
     launchOptions: { executablePath: process.env.PW_CHROMIUM ?? undefined },
   },
-  webServer: {
-    command: 'pnpm dev --port 5173 --strictPort',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    env: {
-      VITE_SUPABASE_URL: 'http://localhost:54321',
-      VITE_SUPABASE_PUBLISHABLE_KEY: process.env.LOCAL_ANON_KEY ?? '',
-    },
-  },
+  webServer: process.env.PW_BASE_URL
+    ? undefined
+    : {
+        command: 'pnpm dev --port 5173 --strictPort',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+        env: {
+          VITE_SUPABASE_URL: 'http://localhost:54321',
+          VITE_SUPABASE_PUBLISHABLE_KEY: process.env.LOCAL_ANON_KEY ?? '',
+        },
+      },
 });
