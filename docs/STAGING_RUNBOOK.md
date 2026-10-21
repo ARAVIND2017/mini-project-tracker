@@ -4,7 +4,7 @@ Staging is where the HOD and faculty run the UAT checklist with fictional data. 
 
 ## 1. Supabase (database, sign-in, Edge Function)
 
-**Option A — reuse the current project as staging (no new project).** It holds only test data and already has every migration (checked after each phase). Skip to step 1.4.
+**Option A — reuse the current project as staging. ← Chosen on 2026-10-21.** The project `mini-project-tracker` (ref `utkekzbkdtcbmupbxmpp`, ap-south-1) is in sync, checked on 2026-10-21: all 37 migrations and the `admin-users` Edge Function (active) match the repository, and it has no users or data yet. Skip to step 1.4.
 
 **Option B — a new free project "mpt-staging"** in region ap-south-1 (Mumbai):
 

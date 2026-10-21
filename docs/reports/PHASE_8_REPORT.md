@@ -94,9 +94,9 @@ It also documents that a student does not see the assignment requests or review 
 
 ## What needs you before Phase 8 can be closed
 
-1. **Staging.** The plan calls for a separate Supabase project ("mpt-staging") and a static host for the frontend. Both are your choice and may cost money:
-   - **Supabase:** either create a second (free) project for staging, or use the current project as staging and create production later in Phase 9. The current project holds only test data.
-   - **Frontend host:** Netlify, Vercel or Cloudflare Pages (open decision O2 in the PRD). Any of them can serve the built `dist` folder. I need an account or token to deploy, or you can connect the GitHub repository yourself.
+1. **Staging.**
+   - **Supabase: decided.** The current project is staging. It is in sync: 37/37 migrations and the Edge Function. It has no users yet. Production will be a new project in Phase 9.
+   - **Frontend host: still open** (Netlify, Vercel or Cloudflare Pages). Everything is prepared for all three; see [STAGING_RUNBOOK.md](../STAGING_RUNBOOK.md). The Supabase project sits in an organization created through the Vercel integration, so Vercel may be the least extra setup.
 2. **UAT.** Once staging is up, Dr Vidyavathi B M and faculty run the checklist and the HOD signs it.
 3. **Still open from earlier phases:**
    - the HOD's email address, to run `app.bootstrap_hod`;

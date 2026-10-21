@@ -7,8 +7,8 @@ Status: Phase 0 — awaiting approval. Hosting provider and budget are still ope
 | Environment | Database / Auth | Frontend | Data |
 |---|---|---|---|
 | Local | Supabase CLI local stack (Docker) or the plain-Postgres test harness | `pnpm dev` | Fictional seed data |
-| Staging | Supabase project "mpt-staging" | Static host preview | Fictional data for UAT |
-| Production | Supabase project "mpt-prod" — region **ap-south-1 (Mumbai)** recommended for latency and data locality | Static host (Netlify / Vercel / Cloudflare Pages — to be decided) | Real data, entered by the HOD |
+| Staging | **Decided 2026-10-21:** the existing Supabase project `mini-project-tracker` (ref `utkekzbkdtcbmupbxmpp`, ap-south-1) | Static host — still to be decided | Fictional data for UAT |
+| Production | A new Supabase project "mpt-prod", created in Phase 9 on a paid plan — region **ap-south-1 (Mumbai)** recommended for latency and data locality | Static host (Netlify / Vercel / Cloudflare Pages — to be decided) | Real data, entered by the HOD |
 
 ## 2. Configuration and secrets
 
