@@ -4,11 +4,13 @@ import { Link, useParams, useSearchParams } from 'react-router';
 import { StatusChip } from '@/components/StatusChip';
 import { Alert, Card, LoadingState, PageHeader } from '@/components/ui';
 import { STAGES, type StageKey } from '@/domain/constants';
+import { membershipFor } from '@/domain/context';
 import { firstOpenStage, viewerFor } from '@/domain/workspace';
 import { toAppError } from '@/lib/errors';
 import { getProjectWorkspace, type ProjectWorkspace } from '@/lib/research';
 import { useActiveContext } from '../auth/authContext';
 import { AnalysisStage } from './AnalysisStage';
+import { EscalateButton } from './EscalateButton';
 import { EvaluationStage } from './EvaluationStage';
 import { ExplorationStage } from './ExplorationStage';
 import { FinalStage } from './FinalStage';
@@ -83,6 +85,9 @@ export function ProjectWorkspacePage() {
           queryClient.invalidateQueries({ queryKey: ['review-queue'] }),
           queryClient.invalidateQueries({ queryKey: ['projects'] }),
           queryClient.invalidateQueries({ queryKey: ['my-projects'] }),
+          queryClient.invalidateQueries({ queryKey: ['overview'] }),
+          queryClient.invalidateQueries({ queryKey: ['my-overview'] }),
+          queryClient.invalidateQueries({ queryKey: ['notifications'] }),
         ]);
       }
     },
@@ -168,12 +173,16 @@ export function ProjectWorkspacePage() {
         }
         actions={
           viewer.isFaculty && ws.project.semester_id ? (
-            <Link
-              to={`/semesters/${ws.project.semester_id}/projects`}
-              className="text-sm text-blue-700 underline dark:text-blue-300"
-            >
-              All projects
-            </Link>
+            <span className="flex flex-wrap items-start justify-end gap-3">
+              {membershipFor(ctx, ws.project.semester_id)?.role === 'lead_faculty' &&
+                ws.semester?.status === 'active' && <EscalateButton projectId={projectId} />}
+              <Link
+                to={`/semesters/${ws.project.semester_id}/projects`}
+                className="pt-2 text-sm text-blue-700 underline dark:text-blue-300"
+              >
+                All projects
+              </Link>
+            </span>
           ) : undefined
         }
       />

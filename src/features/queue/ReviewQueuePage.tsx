@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { ExportCsvButton } from '@/components/ExportCsvButton';
 import { Alert, Card, LoadingState, SelectField } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
 import { isHod, membershipFor } from '@/domain/context';
 import { itemLink, waitedFor } from '@/domain/queue';
 import { listReviewQueue } from '@/lib/tasks';
 import { useActiveContext } from '../auth/authContext';
+import { QUEUE_COLUMNS } from '../dashboard/exportColumns';
 import { SemesterNav } from '../semesters/SemesterNav';
 import { StaffOnly } from '../semesters/StaffOnly';
 
@@ -87,6 +89,11 @@ function QueueContent() {
           <span className="pb-2 text-sm">
             <strong>{rows.length}</strong> waiting
           </span>
+          {everything && (
+            <span className="pb-1">
+              <ExportCsvButton rows={rows} columns={QUEUE_COLUMNS} name="review-queue" />
+            </span>
+          )}
         </div>
         {rows.length === 0 ? (
           <p className="text-sm text-slate-600 dark:text-slate-300">

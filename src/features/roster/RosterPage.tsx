@@ -64,6 +64,7 @@ function RosterPageContent() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['students', semesterId] }),
       queryClient.invalidateQueries({ queryKey: ['projects', semesterId] }),
+      queryClient.invalidateQueries({ queryKey: ['overview', semesterId] }),
     ]);
   };
   const action = useMutation({

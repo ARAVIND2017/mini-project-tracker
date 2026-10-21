@@ -11,6 +11,7 @@ import {
   setProjectTitle,
   type ProjectRow,
 } from '@/lib/api';
+import { StudentProgress } from './StudentProgress';
 
 /** The student's own project: domain, guide, current stage, title and Drive folder. */
 export function MyProjectCard({ userId }: { userId: string }) {
@@ -130,6 +131,8 @@ function ProjectCard({
           </div>
         )}
       </dl>
+
+      <StudentProgress projectId={p.id as string} userId={userId} />
 
       <form
         className="mt-4 flex flex-wrap items-end gap-2"

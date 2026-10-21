@@ -1,4 +1,4 @@
-import { parseCsv, rosterRowsFromCsv } from './csv';
+import { csvCell, csvFileName, parseCsv, rosterRowsFromCsv, toCsv } from './csv';
 
 describe('parseCsv', () => {
   it('handles quotes, escaped quotes, commas and newlines inside quotes', () => {
@@ -56,5 +56,47 @@ describe('rosterRowsFromCsv', () => {
     expect(() => rosterRowsFromCsv('slot_no,name,student name\n1,A,B')).toThrow('Two columns');
     expect(() => rosterRowsFromCsv('')).toThrow('empty');
     expect(() => rosterRowsFromCsv('slot_no,name\n')).toThrow('no rows');
+  });
+});
+
+describe('CSV export (FUN-17)', () => {
+  it('quotes values with commas, quotes and newlines', () => {
+    expect(csvCell('a,b')).toBe('"a,b"');
+    expect(csvCell('say "hi"')).toBe('"say ""hi"""');
+    expect(csvCell('two\nlines')).toBe('"two\nlines"');
+    expect(csvCell(null)).toBe('');
+    expect(csvCell(42)).toBe('42');
+    expect(csvCell(-3)).toBe('-3');
+  });
+
+  it('neutralizes cells a spreadsheet would run as formulas', () => {
+    expect(csvCell('=HYPERLINK("x")')).toBe(`"'=HYPERLINK(""x"")"`);
+    expect(csvCell('+1')).toBe("'+1");
+    expect(csvCell('@SUM(A1)')).toBe("'@SUM(A1)");
+  });
+
+  it('writes a header row and round-trips through the reader', () => {
+    const text = toCsv(
+      [
+        { name: 'Student, A', n: 1 },
+        { name: 'B', n: null },
+      ],
+      [
+        { header: 'Name', value: (r) => r.name },
+        { header: 'Count', value: (r) => r.n },
+      ],
+    );
+    expect(text).toBe('Name,Count\r\n"Student, A",1\r\nB,\r\n');
+    expect(parseCsv(text)).toEqual([
+      ['Name', 'Count'],
+      ['Student, A', '1'],
+      ['B', ''],
+    ]);
+  });
+
+  it('names files by date', () => {
+    expect(csvFileName('Project overview', new Date('2026-10-21T10:00:00Z'))).toBe(
+      'project-overview-2026-10-21.csv',
+    );
   });
 });

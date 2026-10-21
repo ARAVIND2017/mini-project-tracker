@@ -152,11 +152,20 @@ Built in Phase 4 for S1–S5. Forms send every field as `p_data` jsonb; unknown 
 
 **Read models:** `v_timeliness` (per project: tasks due, first submissions on time/late, average days late, overdue without a submission, review cycles) and `v_duplicate_warnings` (shared DOI, paper title, repository link or project title within a semester). `v_review_queue` also lists S7 result sets, S8 sections and projects waiting for the panel.
 
-### 4.6 Notifications
+### 4.6 Notifications, escalation and meetings (built in Phase 7)
 
 | Function | Arguments | Auth |
 |---|---|---|
-| `app_mark_notifications_read` | ids[] or all | Own rows |
+| `app_mark_notifications_read` | ids uuid[] (null = all) → number marked | Own rows |
+| `app_refresh_my_reminders` | → number added | Any active user. Adds a "due soon" notification for each of the caller's open tasks due in the next 48 hours, once per task (`dedupe_key = deadline:<task>`). The app calls it when the user is active, so no scheduler is needed |
+| `app_escalate_to_hod` | project_id, note (≥ 10 characters) | The semester's lead (or the HOD). Notifies the HOD; audited as `project.escalated` |
+| `app_record_meeting` | semester_id, held_on, title, notes, attendee_ids uuid[], outcomes jsonb `[{project_id, outcome, action_items[]}]` → meeting id | Faculty-level users of an active semester. `held_on` cannot be in the future; one outcome per project; the meeting and its outcomes cannot be edited afterwards. Each student with an outcome is notified |
+
+**Notifications are written by the database**, from the named workflow events in the audit log (FUN-18), in the same transaction: a weekly-task or stage submission → the project's reviewers (S9: also the panel); a review → the student; an addressed correction → the reviewers (S9: the panel); an assignment decision → the faculty member who asked; an S4 exception, a panel decision and project completion → the student (completion also the guide). Nobody is notified of their own action. Links are in-app paths only.
+
+**Read models:** `v_project_overview` (v_projects plus calculated progress and its per-stage breakdown, stage statuses, overdue and blocked tasks, open and addressed corrections, selected paper, execution and objective status, last activity), `v_task_flags` (overdue or blocked tasks with days overdue) and `v_faculty_workload` (per faculty member and the HOD: guided and co-reviewed projects, items waiting, oldest wait, corrections to verify, average turnaround, reviews in the last 7 days; HOD, admin and lead only). `review_meetings`, `meeting_attendees` (faculty only) and `meeting_outcomes` (a student sees only their own).
+
+**Progress (DATA-09)** is calculated, never stored: Σ over the nine stages of weight × completion, where completion is 1 for an approved stage (or approved exception), otherwise verified ÷ active weekly tasks of that stage (0 if none). Weights are the semester's `stage_weights` (total 100).
 
 ## 5. Read endpoints (PostgREST, RLS-filtered)
 

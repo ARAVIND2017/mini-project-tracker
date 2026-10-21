@@ -136,3 +136,33 @@ export function rosterRowsFromCsv(text: string): ParsedRoster {
 
 export const ROSTER_TEMPLATE =
   'slot_no,institution_id,full_name,email,drive_folder_url,domain\n' + '1,,,,,\n' + '2,,,,,\n';
+
+// ---------------------------------------------------------------- export (FUN-17) --
+export interface CsvColumn<T> {
+  header: string;
+  value: (row: T) => string | number | boolean | null | undefined;
+}
+
+/** One CSV value: quoted when needed; cells that a spreadsheet would run as a formula are prefixed with '. */
+export function csvCell(value: string | number | boolean | null | undefined): string {
+  if (value == null) return '';
+  let text = String(value);
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+/** RFC 4180 CSV with a header row and CRLF line endings. */
+export function toCsv<T>(rows: readonly T[], columns: readonly CsvColumn<T>[]): string {
+  const lines = [columns.map((c) => csvCell(c.header)).join(',')];
+  for (const row of rows) lines.push(columns.map((c) => csvCell(c.value(row))).join(','));
+  return lines.join('\r\n') + '\r\n';
+}
+
+/** A file name such as "projects-2026-10-21.csv". */
+export function csvFileName(base: string, date = new Date()): string {
+  const slug = base
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${slug || 'export'}-${date.toISOString().slice(0, 10)}.csv`;
+}

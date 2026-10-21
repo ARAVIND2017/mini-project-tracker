@@ -1,10 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
+import { ExportCsvButton } from '@/components/ExportCsvButton';
+import { ProgressBar } from '@/components/ProgressBar';
 import { Alert, Card, LoadingState, SelectField, TextField } from '@/components/ui';
 import { STAGES } from '@/domain/constants';
-import { hasAdminPermission, isHod } from '@/domain/context';
-import { assignGuide, getSemester, listDomains, listProjects, setProjectDomain } from '@/lib/api';
+import { hasAdminPermission, isHod, membershipFor } from '@/domain/context';
+import { FLAGS, filtersFromParams, matchesFilters, type ProjectFilters } from '@/domain/dashboard';
+import { assignGuide, getSemester, listDomains, setProjectDomain } from '@/lib/api';
+import { listOverview } from '@/lib/reports';
+import { OVERVIEW_COLUMNS } from '../dashboard/exportColumns';
 import { useActiveContext } from '../auth/authContext';
 import { SemesterNav } from '../semesters/SemesterNav';
 import { StaffOnly } from '../semesters/StaffOnly';
@@ -33,8 +38,8 @@ function ProjectsPageContent() {
     queryFn: () => getSemester(semesterId),
   });
   const projects = useQuery({
-    queryKey: ['projects', semesterId],
-    queryFn: () => listProjects(semesterId),
+    queryKey: ['overview', semesterId],
+    queryFn: () => listOverview(semesterId),
   });
   const domains = useQuery({
     queryKey: ['domains', semesterId],
@@ -44,15 +49,31 @@ function ProjectsPageContent() {
   const closed = semester.data?.status === 'closed';
   const canSetDomain = hasAdminPermission(ctx, 'manage_config') && !closed;
   const canAssignGuide = isHod(ctx) && !closed;
+  // CSV export is for the HOD, admins and the lead (FUN-17).
+  const canExport =
+    isHod(ctx) ||
+    ctx.system_roles.some((r) => r.role === 'admin') ||
+    membershipFor(ctx, semesterId)?.role === 'lead_faculty';
 
-  const [domainFilter, setDomainFilter] = useState('');
-  const [guideFilter, setGuideFilter] = useState('');
-  const [search, setSearch] = useState('');
+  // Filters live in the URL so that dashboard numbers can link to this list (UI-02).
+  const [params, setParams] = useSearchParams();
+  const filters = filtersFromParams(params);
+  const showWithdrawn = params.get('withdrawn') === '1';
+  const setFilter = (key: keyof ProjectFilters | 'withdrawn', value: string) => {
+    const next = new URLSearchParams(params);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setParams(next, { replace: true });
+  };
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
 
   const action = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects', semesterId] }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['overview', semesterId] }),
+        queryClient.invalidateQueries({ queryKey: ['projects', semesterId] }),
+      ]),
     onError: (err) => setMessage({ tone: 'error', text: err.message }),
   });
   const run = (fn: () => Promise<unknown>, success: string) => {
@@ -60,17 +81,14 @@ function ProjectsPageContent() {
     action.mutate(fn, { onSuccess: () => setMessage({ tone: 'success', text: success }) });
   };
 
+  const paramKey = params.toString();
   const rows = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const f = filtersFromParams(new URLSearchParams(paramKey));
+    const withdrawn = new URLSearchParams(paramKey).get('withdrawn') === '1';
     return (projects.data ?? []).filter(
-      (p) =>
-        (!domainFilter ||
-          (domainFilter === 'none' ? !p.domain_id : p.domain_id === domainFilter)) &&
-        (!guideFilter || (guideFilter === 'none' ? !p.guide_id : p.guide_id === guideFilter)) &&
-        (!term ||
-          [p.student_name, p.institution_id, p.title].some((v) => v?.toLowerCase().includes(term))),
+      (p) => (withdrawn || p.roster_status !== 'withdrawn') && matchesFilters(p, f),
     );
-  }, [projects.data, domainFilter, guideFilter, search]);
+  }, [projects.data, paramKey]);
 
   if (projects.isPending) {
     return (
@@ -106,17 +124,17 @@ function ProjectsPageContent() {
       )}
 
       <Card>
-        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+        <div className="mb-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <TextField
             label="Search"
             placeholder="Name, student ID or title"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={filters.q}
+            onChange={(e) => setFilter('q', e.target.value)}
           />
           <SelectField
             label="Domain"
-            value={domainFilter}
-            onChange={(e) => setDomainFilter(e.target.value)}
+            value={filters.domain}
+            onChange={(e) => setFilter('domain', e.target.value)}
           >
             <option value="">All domains</option>
             <option value="none">No domain</option>
@@ -128,8 +146,8 @@ function ProjectsPageContent() {
           </SelectField>
           <SelectField
             label="Guide"
-            value={guideFilter}
-            onChange={(e) => setGuideFilter(e.target.value)}
+            value={filters.guide}
+            onChange={(e) => setFilter('guide', e.target.value)}
           >
             <option value="">All guides</option>
             <option value="none">Unassigned</option>
@@ -139,6 +157,58 @@ function ProjectsPageContent() {
               </option>
             ))}
           </SelectField>
+          <SelectField
+            label="Current stage"
+            value={filters.stage}
+            onChange={(e) => setFilter('stage', e.target.value)}
+          >
+            <option value="">All stages</option>
+            {STAGES.map((st) => (
+              <option key={st.key} value={st.key}>
+                S{st.no} {st.name}
+              </option>
+            ))}
+            <option value="complete">All stages complete</option>
+          </SelectField>
+          <SelectField
+            label="Flag"
+            value={filters.flag}
+            onChange={(e) => setFilter('flag', e.target.value)}
+          >
+            <option value="">Any</option>
+            {Object.entries(FLAGS).map(([k, label]) => (
+              <option key={k} value={k}>
+                {label}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showWithdrawn}
+              onChange={(e) => setFilter('withdrawn', e.target.checked ? '1' : '')}
+            />
+            Include withdrawn students
+          </label>
+          <span className="flex items-center gap-3">
+            <span role="status">
+              Showing <strong>{rows.length}</strong> of {projects.data.length}
+            </span>
+            {params.toString() && (
+              <button
+                type="button"
+                className="text-blue-700 underline dark:text-blue-300"
+                onClick={() => setParams({}, { replace: true })}
+              >
+                Clear filters
+              </button>
+            )}
+            {canExport && (
+              <ExportCsvButton rows={rows} columns={OVERVIEW_COLUMNS} name="projects" />
+            )}
+          </span>
         </div>
 
         {rows.length === 0 ? (
@@ -158,6 +228,8 @@ function ProjectsPageContent() {
                   <th className="px-4 py-2 font-medium">Guide</th>
                   <th className="px-4 py-2 font-medium">Co-reviewers</th>
                   <th className="px-4 py-2 font-medium">Current stage</th>
+                  <th className="px-4 py-2 font-medium">Progress</th>
+                  <th className="px-4 py-2 font-medium">Flags</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -258,6 +330,35 @@ function ProjectsPageContent() {
                         <div className="mt-1 text-xs font-medium text-amber-800 dark:text-amber-300">
                           ! {p.awaiting_review} waiting for review
                         </div>
+                      )}
+                      {p.selected_paper_title && (
+                        <div
+                          className="mt-1 max-w-56 truncate text-xs text-slate-500 dark:text-slate-400"
+                          title={p.selected_paper_title}
+                        >
+                          Paper: {p.selected_paper_title}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 align-top">
+                      <ProgressBar value={p.progress} compact />
+                    </td>
+                    <td className="px-4 py-2 align-top text-xs">
+                      {(p.overdue_tasks ?? 0) > 0 && (
+                        <div className="font-medium text-red-800 dark:text-red-300">
+                          ✕ {p.overdue_tasks} overdue
+                        </div>
+                      )}
+                      {(p.blocked || (p.blocked_tasks ?? 0) > 0) && (
+                        <div className="font-medium text-red-800 dark:text-red-300">✕ Blocked</div>
+                      )}
+                      {(p.open_corrections ?? 0) > 0 && (
+                        <div className="text-amber-800 dark:text-amber-300">
+                          ! {p.open_corrections} open correction(s)
+                        </div>
+                      )}
+                      {p.is_completed && (
+                        <div className="text-green-800 dark:text-green-300">✓ Complete</div>
                       )}
                     </td>
                   </tr>

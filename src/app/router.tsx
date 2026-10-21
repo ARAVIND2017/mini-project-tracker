@@ -40,6 +40,10 @@ export const router = createBrowserRouter([
             element: <AppShell />,
             children: [
               { index: true, element: <HomePage /> },
+              {
+                path: 'notifications',
+                lazy: lazyPage(() => import('./pages/NotificationsRoute')),
+              },
               { path: 'semesters', lazy: lazyPage(() => import('./pages/SemestersRoute')) },
               {
                 path: 'semesters/:semesterId',
@@ -76,6 +80,14 @@ export const router = createBrowserRouter([
               {
                 path: 'semesters/:semesterId/review-queue',
                 lazy: lazyPage(() => import('./pages/ReviewQueueRoute')),
+              },
+              {
+                path: 'semesters/:semesterId/meetings',
+                lazy: lazyPage(() => import('./pages/MeetingsRoute')),
+              },
+              {
+                path: 'semesters/:semesterId/audit',
+                lazy: lazyPage(() => import('./pages/AuditRoute')),
               },
               {
                 path: 'projects/:projectId',

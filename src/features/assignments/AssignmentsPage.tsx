@@ -94,7 +94,7 @@ function AssignmentsPageContent() {
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
     onSuccess: () =>
       Promise.all(
-        ['requests', 'projects', 'authorizations', 'expertise'].map((k) =>
+        ['requests', 'projects', 'overview', 'authorizations', 'expertise'].map((k) =>
           queryClient.invalidateQueries({ queryKey: [k, semesterId] }),
         ),
       ),

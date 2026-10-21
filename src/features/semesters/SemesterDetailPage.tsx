@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { Alert, Button, Card, LoadingState } from '@/components/ui';
-import { hasAdminPermission } from '@/domain/context';
+import { hasAdminPermission, isFacultyLevel } from '@/domain/context';
 import { formFromSemester, settingsPayload, weekStartDate } from '@/domain/semester';
 import {
   activateSemester,
@@ -13,6 +13,7 @@ import {
   updateSemester,
 } from '@/lib/api';
 import { useActiveContext, useAuth } from '../auth/authContext';
+import { SemesterDashboard } from '../dashboard/SemesterDashboard';
 import { SemesterForm } from './SemesterForm';
 import { SemesterNav } from './SemesterNav';
 
@@ -61,6 +62,13 @@ export function SemesterDetailPage() {
   return (
     <div>
       <SemesterNav />
+
+      {s.status !== 'draft' &&
+        (isFacultyLevel(ctx, semesterId) || ctx.system_roles.some((r) => r.role === 'admin')) && (
+          <div className="mb-8">
+            <SemesterDashboard semesterId={semesterId} />
+          </div>
+        )}
 
       {canConfigure && s.status === 'draft' && (
         <Card title="Activation checklist">

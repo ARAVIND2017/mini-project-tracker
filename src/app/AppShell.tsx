@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router';
 import { primaryRoleLabel } from '@/domain/context';
 import { useActiveContext, useAuth } from '@/features/auth/authContext';
+import { NotificationBell } from '@/features/notifications/NotificationBell';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   isActive
@@ -30,6 +31,7 @@ export function AppShell() {
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <NotificationBell />
             <span className="text-right leading-tight">
               <span className="block font-medium">{ctx.profile.full_name}</span>
               <span className="block text-xs text-slate-500 dark:text-slate-400">

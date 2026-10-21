@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { NavLink, useParams } from 'react-router';
-import { hasAdminPermission, isFacultyLevel } from '@/domain/context';
+import { hasAdminPermission, isFacultyLevel, isHod, membershipFor } from '@/domain/context';
 import { getSemester } from '@/lib/api';
 import { useActiveContext } from '../auth/authContext';
 import { SemesterStatusBadge } from './SemesterStatusBadge';
@@ -21,6 +21,10 @@ export function SemesterNav() {
     queryFn: () => getSemester(semesterId),
   });
   const staff = isFacultyLevel(ctx, semesterId) || ctx.system_roles.some((r) => r.role === 'admin');
+  const canSeeAudit =
+    isHod(ctx) ||
+    ctx.system_roles.some((r) => r.role === 'admin') ||
+    membershipFor(ctx, semesterId)?.role === 'lead_faculty';
 
   const tabs = [
     { to: `/semesters/${semesterId}`, label: 'Overview', end: true, show: true },
@@ -40,12 +44,24 @@ export function SemesterNav() {
     { to: `/semesters/${semesterId}/roster`, label: 'Roster', end: false, show: staff },
     { to: `/semesters/${semesterId}/plan`, label: 'Plan', end: false, show: staff },
     { to: `/semesters/${semesterId}/panels`, label: 'Panels', end: false, show: staff },
+    {
+      to: `/semesters/${semesterId}/meetings`,
+      label: 'Meetings',
+      end: false,
+      show: isFacultyLevel(ctx, semesterId),
+    },
     { to: `/semesters/${semesterId}/domains`, label: 'Domains', end: false, show: true },
     {
       to: `/semesters/${semesterId}/people`,
       label: 'People & roles',
       end: false,
       show: staff || hasAdminPermission(ctx, 'manage_users'),
+    },
+    {
+      to: `/semesters/${semesterId}/audit`,
+      label: 'Audit log',
+      end: false,
+      show: canSeeAudit,
     },
   ];
 
