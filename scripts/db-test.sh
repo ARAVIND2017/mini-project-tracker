@@ -54,7 +54,18 @@ run_sql "$ROOT/supabase/tests/_support/test_helpers.sql"
 failed=0
 for f in "$ROOT"/supabase/tests/*.sql; do
   echo "• test $(basename "$f")"
-  if ! run_sql "$f"; then failed=$((failed + 1)); fi
+  status=0
+  out="$(run_sql "$f")" || status=$?
+  printf '%s\n' "$out"
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    # Surface failures (and the performance timings) on the run summary.
+    grep -E 'timings \(ms\)' <<<"$out" | sed -E 's/^ +//; s/^/::notice title=db-test performance::/' || true
+    if [[ $status -ne 0 ]]; then
+      msg="$(grep -m1 -E 'ERROR' <<<"$out" | sed -E 's/^ +//')"
+      echo "::error title=db-test $(basename "$f")::${msg:-failed}"
+    fi
+  fi
+  if [[ $status -ne 0 ]]; then failed=$((failed + 1)); fi
 done
 
 if [[ $failed -gt 0 ]]; then
