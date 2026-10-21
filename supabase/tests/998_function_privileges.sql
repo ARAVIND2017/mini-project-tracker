@@ -10,7 +10,8 @@ select tests.assert_eq(
      and p.proname not in ('is_api_role', 'raise_error', 'is_active_user', 'is_hod', 'is_admin',
                            'has_admin_permission', 'semester_role', 'is_faculty_level', 'is_lead',
                            'is_semester_member', 'can_view_profile', 'project_semester',
-                           'is_project_student', 'can_view_project', 'is_project_reviewer')),
+                           'is_project_student', 'can_view_project', 'is_project_reviewer',
+                           'project_summary', 'current_hod_ids')),
   null, 'app functions callable by API roles outside the allow-list');
 select tests.assert_eq(
   (select string_agg(p.oid::regprocedure::text, ', ' order by 1)

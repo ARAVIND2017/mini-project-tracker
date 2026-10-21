@@ -81,6 +81,13 @@ export type Database = {
             foreignKeyName: 'assignment_requests_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_requests_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -229,6 +236,13 @@ export type Database = {
             foreignKeyName: 'code_repositories_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'code_repositories_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -299,6 +313,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'corrections_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -494,6 +515,13 @@ export type Database = {
             foreignKeyName: 'evaluation_results_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evaluation_results_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -580,6 +608,13 @@ export type Database = {
             foreignKeyName: 'evidence_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evidence_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -596,6 +631,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'tasks';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'evidence_task_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_task_flags';
+            referencedColumns: ['task_id'];
           },
           {
             foreignKeyName: 'evidence_task_fkey';
@@ -656,6 +698,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'execution_attempts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -799,6 +848,13 @@ export type Database = {
             foreignKeyName: 'final_deliverables_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_deliverables_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -868,6 +924,13 @@ export type Database = {
             foreignKeyName: 'final_signoffs_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'final_signoffs_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -929,11 +992,108 @@ export type Database = {
             foreignKeyName: 'implementation_items_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'implementation_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'implementation_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
+      meeting_attendees: {
+        Row: {
+          meeting_id: string;
+          user_id: string;
+        };
+        Insert: {
+          meeting_id: string;
+          user_id: string;
+        };
+        Update: {
+          meeting_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'meeting_attendees_meeting_id_fkey';
+            columns: ['meeting_id'];
+            isOneToOne: false;
+            referencedRelation: 'review_meetings';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meeting_attendees_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      meeting_outcomes: {
+        Row: {
+          action_items: string[];
+          id: string;
+          meeting_id: string;
+          outcome: string;
+          project_id: string;
+        };
+        Insert: {
+          action_items?: string[];
+          id?: string;
+          meeting_id: string;
+          outcome: string;
+          project_id: string;
+        };
+        Update: {
+          action_items?: string[];
+          id?: string;
+          meeting_id?: string;
+          outcome?: string;
+          project_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'meeting_outcomes_meeting_id_fkey';
+            columns: ['meeting_id'];
+            isOneToOne: false;
+            referencedRelation: 'review_meetings';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meeting_outcomes_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meeting_outcomes_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meeting_outcomes_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'meeting_outcomes_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'v_timeliness';
@@ -1046,6 +1206,81 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          body: string | null;
+          created_at: string;
+          dedupe_key: string | null;
+          id: string;
+          link: string | null;
+          project_id: string | null;
+          read_at: string | null;
+          title: string;
+          type: string;
+          user_id: string;
+        };
+        Insert: {
+          body?: string | null;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          link?: string | null;
+          project_id?: string | null;
+          read_at?: string | null;
+          title: string;
+          type: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string | null;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          link?: string | null;
+          project_id?: string | null;
+          read_at?: string | null;
+          title?: string;
+          type?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+          {
+            foreignKeyName: 'notifications_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       objective_versions: {
         Row: {
           contribution: string | null;
@@ -1120,6 +1355,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'objective_versions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -1218,6 +1460,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'panel_projects_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -1364,6 +1613,13 @@ export type Database = {
             foreignKeyName: 'paper_analyses_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_analyses_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -1432,6 +1688,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'paper_drafts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -1564,6 +1827,13 @@ export type Database = {
             foreignKeyName: 'papers_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'papers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -1656,6 +1926,13 @@ export type Database = {
             foreignKeyName: 'project_reviewers_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reviewers_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -1723,6 +2000,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_stages_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -1906,6 +2190,13 @@ export type Database = {
             foreignKeyName: 'research_explorations_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: true;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'research_explorations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: true;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -1978,6 +2269,13 @@ export type Database = {
             foreignKeyName: 'review_authorizations_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_authorizations_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -1993,6 +2291,51 @@ export type Database = {
             columns: ['revoked_by'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      review_meetings: {
+        Row: {
+          created_at: string;
+          held_on: string;
+          id: string;
+          notes: string | null;
+          recorded_by: string;
+          semester_id: string;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          held_on: string;
+          id?: string;
+          notes?: string | null;
+          recorded_by: string;
+          semester_id: string;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          held_on?: string;
+          id?: string;
+          notes?: string | null;
+          recorded_by?: string;
+          semester_id?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'review_meetings_recorded_by_fkey';
+            columns: ['recorded_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'review_meetings_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
             referencedColumns: ['id'];
           },
         ];
@@ -2037,6 +2380,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reviews_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -2316,6 +2666,13 @@ export type Database = {
             foreignKeyName: 'submissions_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -2339,6 +2696,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'tasks';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'submissions_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_task_flags';
+            referencedColumns: ['task_id'];
           },
           {
             foreignKeyName: 'submissions_task_id_fkey';
@@ -2557,6 +2921,13 @@ export type Database = {
             foreignKeyName: 'tasks_project_id_fkey';
             columns: ['project_id'];
             isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
             referencedRelation: 'v_projects';
             referencedColumns: ['id'];
           },
@@ -2586,6 +2957,96 @@ export type Database = {
           value: string | null;
         };
         Relationships: [];
+      };
+      v_faculty_workload: {
+        Row: {
+          avg_turnaround_hours: number | null;
+          co_reviewed_projects: number | null;
+          corrections_to_verify: number | null;
+          full_name: string | null;
+          guided_projects: number | null;
+          oldest_waiting_since: string | null;
+          pending_reviews: number | null;
+          reviews_last_7_days: number | null;
+          role: string | null;
+          semester_id: string | null;
+          user_id: string | null;
+        };
+        Relationships: [];
+      };
+      v_project_overview: {
+        Row: {
+          addressed_corrections: number | null;
+          awaiting_review: number | null;
+          blocked: boolean | null;
+          blocked_tasks: number | null;
+          co_reviewer_names: string[] | null;
+          current_stage: Database['public']['Enums']['stage_key'] | null;
+          domain_id: string | null;
+          domain_name: string | null;
+          execution_status: Database['public']['Enums']['execution_status'] | null;
+          guide_id: string | null;
+          guide_name: string | null;
+          id: string | null;
+          institution_id: string | null;
+          is_completed: boolean | null;
+          last_activity: string | null;
+          objective_status: Database['public']['Enums']['record_status'] | null;
+          oldest_open_correction: string | null;
+          open_corrections: number | null;
+          overdue_tasks: number | null;
+          pending_requests: number | null;
+          progress: number | null;
+          progress_breakdown: Json | null;
+          roster_status: Database['public']['Enums']['roster_status'] | null;
+          selected_paper_title: string | null;
+          semester_id: string | null;
+          slot_no: number | null;
+          stage_statuses: Json | null;
+          student_email: string | null;
+          student_id: string | null;
+          student_name: string | null;
+          student_user_id: string | null;
+          title: string | null;
+          updated_at: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_domain_id_fkey';
+            columns: ['domain_id'];
+            isOneToOne: false;
+            referencedRelation: 'domains';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_guide_id_fkey';
+            columns: ['guide_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: true;
+            referencedRelation: 'students';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'students_user_id_fkey';
+            columns: ['student_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       v_projects: {
         Row: {
@@ -2686,6 +3147,69 @@ export type Database = {
           },
         ];
       };
+      v_task_flags: {
+        Row: {
+          blocked: boolean | null;
+          blocked_reason: string | null;
+          days_overdue: number | null;
+          due_at: string | null;
+          guide_id: string | null;
+          is_overdue: boolean | null;
+          project_id: string | null;
+          semester_id: string | null;
+          slot_no: number | null;
+          stage_key: Database['public']['Enums']['stage_key'] | null;
+          status: Database['public']['Enums']['task_status'] | null;
+          student_name: string | null;
+          task_id: string | null;
+          title: string | null;
+          week_no: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'projects_guide_id_fkey';
+            columns: ['guide_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'projects_semester_id_fkey';
+            columns: ['semester_id'];
+            isOneToOne: false;
+            referencedRelation: 'semesters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_timeliness';
+            referencedColumns: ['project_id'];
+          },
+        ];
+      };
       v_tasks: {
         Row: {
           acceptance_criteria: string[] | null;
@@ -2732,6 +3256,13 @@ export type Database = {
             columns: ['project_id'];
             isOneToOne: false;
             referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'tasks_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_project_overview';
             referencedColumns: ['id'];
           },
           {
@@ -2834,6 +3365,10 @@ export type Database = {
         Args: { p_approve: boolean; p_note?: string; p_request_id: string };
         Returns: undefined;
       };
+      app_escalate_to_hod: {
+        Args: { p_note: string; p_project_id: string };
+        Returns: undefined;
+      };
       app_generate_tasks: {
         Args: {
           p_project_id?: string;
@@ -2867,6 +3402,10 @@ export type Database = {
         Args: { p_student_id: string; p_user_id: string };
         Returns: undefined;
       };
+      app_mark_notifications_read: {
+        Args: { p_ids?: string[] };
+        Returns: number;
+      };
       app_my_context: { Args: never; Returns: Json };
       app_new_analysis_version: {
         Args: { p_paper_id: string };
@@ -2899,6 +3438,17 @@ export type Database = {
         };
         Returns: string;
       };
+      app_record_meeting: {
+        Args: {
+          p_attendee_ids: string[];
+          p_held_on: string;
+          p_notes: string;
+          p_outcomes?: Json;
+          p_semester_id: string;
+          p_title: string;
+        };
+        Returns: string;
+      };
       app_record_review: {
         Args: {
           p_comments?: string;
@@ -2920,6 +3470,7 @@ export type Database = {
         };
         Returns: string;
       };
+      app_refresh_my_reminders: { Args: never; Returns: number };
       app_remove_co_reviewer: {
         Args: { p_faculty_id: string; p_note?: string; p_project_id: string };
         Returns: undefined;
