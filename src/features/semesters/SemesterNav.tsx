@@ -1,18 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { NavLink, useParams } from 'react-router';
-import { hasAdminPermission, isFacultyLevel, isHod, membershipFor } from '@/domain/context';
 import { getSemester } from '@/lib/api';
 import { useActiveContext } from '../auth/authContext';
+import { semesterSections } from './semesterSections';
 import { SemesterStatusBadge } from './SemesterStatusBadge';
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
-  `whitespace-nowrap border-b-2 px-3 py-2 text-sm ${
+  `whitespace-nowrap rounded-lg px-3 py-1.5 text-sm ${
     isActive
-      ? 'border-blue-700 font-medium text-blue-800 dark:border-blue-300 dark:text-blue-200'
-      : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+      ? 'bg-blue-700 font-medium text-white dark:bg-blue-600'
+      : 'text-slate-600 ring-1 ring-inset ring-slate-300 hover:bg-white dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-800'
   }`;
 
-/** Header and tabs shared by every semester screen. */
+/**
+ * Header shared by every semester screen: the semester's name and status. On large
+ * screens the sections are in the sidebar; on small screens they are a row of tabs here.
+ */
 export function SemesterNav() {
   const { semesterId = '' } = useParams();
   const ctx = useActiveContext();
@@ -20,68 +23,32 @@ export function SemesterNav() {
     queryKey: ['semester', semesterId],
     queryFn: () => getSemester(semesterId),
   });
-  const staff = isFacultyLevel(ctx, semesterId) || ctx.system_roles.some((r) => r.role === 'admin');
-  const canSeeAudit =
-    isHod(ctx) ||
-    ctx.system_roles.some((r) => r.role === 'admin') ||
-    membershipFor(ctx, semesterId)?.role === 'lead_faculty';
-
-  const tabs = [
-    { to: `/semesters/${semesterId}`, label: 'Overview', end: true, show: true },
-    { to: `/semesters/${semesterId}/projects`, label: 'Projects', end: false, show: staff },
-    {
-      to: `/semesters/${semesterId}/review-queue`,
-      label: 'Review queue',
-      end: false,
-      show: isFacultyLevel(ctx, semesterId),
-    },
-    {
-      to: `/semesters/${semesterId}/assignments`,
-      label: 'Assignments',
-      end: false,
-      show: isFacultyLevel(ctx, semesterId),
-    },
-    { to: `/semesters/${semesterId}/roster`, label: 'Roster', end: false, show: staff },
-    { to: `/semesters/${semesterId}/plan`, label: 'Plan', end: false, show: staff },
-    { to: `/semesters/${semesterId}/panels`, label: 'Panels', end: false, show: staff },
-    {
-      to: `/semesters/${semesterId}/meetings`,
-      label: 'Meetings',
-      end: false,
-      show: isFacultyLevel(ctx, semesterId),
-    },
-    { to: `/semesters/${semesterId}/domains`, label: 'Domains', end: false, show: true },
-    {
-      to: `/semesters/${semesterId}/people`,
-      label: 'People & roles',
-      end: false,
-      show: staff || hasAdminPermission(ctx, 'manage_users'),
-    },
-    {
-      to: `/semesters/${semesterId}/audit`,
-      label: 'Audit log',
-      end: false,
-      show: canSeeAudit,
-    },
-  ];
+  const sections = semesterSections(ctx, semesterId);
 
   return (
     <div className="mb-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-semibold">{semester.data?.name ?? 'Semester'}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {semester.data?.name ?? 'Semester'}
+        </h1>
         {semester.data && <SemesterStatusBadge status={semester.data.status} />}
+        {semester.data?.academic_year && (
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            {semester.data.academic_year}
+          </span>
+        )}
       </div>
-      <nav
-        aria-label="Semester"
-        className="-mx-4 mt-3 flex overflow-x-auto border-b border-slate-200 px-4 dark:border-slate-800"
-      >
-        {tabs
-          .filter((t) => t.show)
-          .map((t) => (
-            <NavLink key={t.to} to={t.to} end={t.end} className={tabClass}>
-              {t.label}
-            </NavLink>
+      {/* Small screens only (the sidebar is hidden there); scrolls sideways if needed. */}
+      <nav aria-label="Semester sections" className="-mx-4 mt-3 lg:hidden" data-scroll-x>
+        <ul className="flex gap-2 overflow-x-auto px-4 pb-1">
+          {sections.map((s) => (
+            <li key={s.to}>
+              <NavLink to={s.to} end={s.end} className={tabClass}>
+                {s.label}
+              </NavLink>
+            </li>
           ))}
+        </ul>
       </nav>
     </div>
   );

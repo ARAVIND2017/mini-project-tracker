@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { z } from 'zod';
+import { z } from '@/lib/z';
 import { Alert, Button, Card, SelectField, TextField } from '@/components/ui';
 import { inviteFaculty } from '@/lib/api';
 

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
-import { StatusChip } from '@/components/StatusChip';
+import { JourneyTimeline } from '@/components/JourneyTimeline';
 import { Alert, Card, LoadingState, PageHeader } from '@/components/ui';
 import { STAGES, type StageKey } from '@/domain/constants';
 import { membershipFor } from '@/domain/context';
@@ -139,8 +139,6 @@ export function ProjectWorkspacePage() {
       ? requested
       : firstOpenStage(ws.stages, OPEN_STAGES);
   const stageDef = STAGES.find((s) => s.key === stage);
-  const statusOf = (key: StageKey) =>
-    ws.stages.find((s) => s.stage_key === key)?.status ?? 'not_started';
 
   const body: Record<string, ReactNode> = {
     exploration: <ExplorationStage key={stageVersionKey(ws, 'exploration')} />,
@@ -156,23 +154,66 @@ export function ProjectWorkspacePage() {
 
   return (
     <WorkspaceContext.Provider value={value}>
-      <PageHeader
-        title={ws.project.student_name ?? 'Project'}
-        description={
-          <>
-            {ws.project.title ? (
-              <span className="italic">{ws.project.title}</span>
-            ) : (
-              'No working title yet'
+      <section
+        aria-label="Project summary"
+        className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            {ws.semester && (
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {ws.semester.name}
+              </p>
             )}
-            {' · '}
-            {ws.project.domain_name ?? 'No domain'} · Guide:{' '}
-            {ws.project.guide_name ?? 'not assigned'}
-            {ws.semester && ` · ${ws.semester.name}`}
-          </>
-        }
-        actions={
-          viewer.isFaculty && ws.project.semester_id ? (
+            <h1 className="mt-0.5 text-2xl font-semibold tracking-tight">
+              {ws.project.student_name ?? 'Project'}
+            </h1>
+            <p className="mt-1 max-w-3xl text-sm text-slate-700 dark:text-slate-200">
+              {ws.project.title ? (
+                <span className="italic">{ws.project.title}</span>
+              ) : (
+                <span className="text-slate-500 dark:text-slate-400">No working title yet</span>
+              )}
+            </p>
+            <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+              <div className="flex gap-1.5">
+                <dt className="text-slate-500 dark:text-slate-400">Domain</dt>
+                <dd className="font-medium">{ws.project.domain_name ?? 'No domain'}</dd>
+              </div>
+              <div className="flex gap-1.5">
+                <dt className="text-slate-500 dark:text-slate-400">Guide</dt>
+                <dd className="font-medium">{ws.project.guide_name ?? 'not assigned'}</dd>
+              </div>
+              <div className="flex gap-1.5">
+                <dt className="text-slate-500 dark:text-slate-400">Stages approved</dt>
+                <dd className="font-medium tabular-nums">
+                  {
+                    ws.stages.filter(
+                      (x) => x.status === 'approved' || x.status === 'exception_approved',
+                    ).length
+                  }{' '}
+                  of 9
+                </dd>
+              </div>
+              {ws.stages.some((x) => x.status === 'awaiting_approval') && (
+                <div className="flex gap-1.5">
+                  <dt className="text-slate-500 dark:text-slate-400">Waiting for review</dt>
+                  <dd className="font-medium tabular-nums text-amber-800 dark:text-amber-300">
+                    {ws.stages.filter((x) => x.status === 'awaiting_approval').length}
+                  </dd>
+                </div>
+              )}
+              {ws.stages.some((x) => x.status === 'changes_requested') && (
+                <div className="flex gap-1.5">
+                  <dt className="text-slate-500 dark:text-slate-400">Changes requested</dt>
+                  <dd className="font-medium tabular-nums text-amber-800 dark:text-amber-300">
+                    {ws.stages.filter((x) => x.status === 'changes_requested').length}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </div>
+          {viewer.isFaculty && ws.project.semester_id && (
             <span className="flex flex-wrap items-start justify-end gap-3">
               {membershipFor(ctx, ws.project.semester_id)?.role === 'lead_faculty' &&
                 ws.semester?.status === 'active' && <EscalateButton projectId={projectId} />}
@@ -183,11 +224,28 @@ export function ProjectWorkspacePage() {
                 All projects
               </Link>
             </span>
-          ) : undefined
-        }
-      />
+          )}
+        </div>
 
-      <div role="tablist" aria-label="Project views" className="mb-4 flex gap-2">
+        <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-800">
+          <JourneyTimeline
+            label="Stages"
+            stages={ws.stages.map((x) => ({ key: x.stage_key as StageKey, status: x.status }))}
+            current={showTasks ? null : stage}
+            isOpen={(key) => OPEN_STAGES.includes(key)}
+            onSelect={(key) => {
+              setMessage(null);
+              setParams({ stage: key }, { replace: true });
+            }}
+          />
+        </div>
+      </section>
+
+      <div
+        role="tablist"
+        aria-label="Project views"
+        className="mb-4 inline-flex rounded-lg bg-slate-100 p-1 dark:bg-slate-800"
+      >
         {[
           { key: 'stages', label: 'Research stages', active: !showTasks },
           { key: 'tasks', label: 'Weekly tasks', active: showTasks },
@@ -201,56 +259,12 @@ export function ProjectWorkspacePage() {
               setMessage(null);
               setParams(v.key === 'tasks' ? { view: 'tasks' } : {}, { replace: true });
             }}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${v.active ? 'bg-blue-700 text-white dark:bg-blue-600' : 'text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800'}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${v.active ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
           >
             {v.label}
           </button>
         ))}
       </div>
-
-      <nav aria-label="Stages" className="mb-6">
-        <ol className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {STAGES.map((s) => {
-            const open = OPEN_STAGES.includes(s.key);
-            const current = s.key === stage;
-            const content = (
-              <>
-                <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">
-                  S{s.no}
-                </span>
-                <span className="block text-sm font-medium">{s.name}</span>
-                <span className="mt-1 block">
-                  <StatusChip family="stage_status" value={statusOf(s.key)} />
-                </span>
-              </>
-            );
-            return (
-              <li key={s.key}>
-                {open ? (
-                  <button
-                    type="button"
-                    aria-current={current && !showTasks ? 'step' : undefined}
-                    onClick={() => {
-                      setMessage(null);
-                      setParams({ stage: s.key }, { replace: true });
-                    }}
-                    className={`h-full w-full rounded-md border p-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${current && !showTasks ? 'border-blue-600 ring-1 ring-blue-600' : 'border-slate-200 dark:border-slate-800'}`}
-                  >
-                    {content}
-                  </button>
-                ) : (
-                  <div
-                    className="h-full rounded-md border border-dashed border-slate-200 p-2 opacity-70 dark:border-slate-800"
-                    title="This stage opens in a later release"
-                  >
-                    {content}
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
 
       {message && (
         <div className="mb-4">

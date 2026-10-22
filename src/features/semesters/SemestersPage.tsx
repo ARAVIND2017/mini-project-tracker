@@ -65,7 +65,7 @@ export function SemestersPage() {
             <li key={s.id}>
               <Link
                 to={`/semesters/${s.id}`}
-                className="block rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-400 dark:border-slate-800 dark:bg-slate-900"
+                className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-400 dark:border-slate-800 dark:bg-slate-900"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">{s.name}</span>

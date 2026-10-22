@@ -115,57 +115,81 @@ export function SemesterDetailPage() {
           </Button>
         </Card>
       )}
-      {canConfigure && s.status === 'active' && (
-        <Card title="Close semester">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            Closing makes the whole semester read-only. This cannot be undone.
-          </p>
-          {close.error && (
-            <div className="mt-3">
-              <Alert tone="error">{close.error.message}</Alert>
+
+      {/* Settings are the main job of a draft semester; afterwards they sit below the dashboard. */}
+      <details
+        open={s.status === 'draft'}
+        className="group mt-8 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 sm:px-5">
+          <span>
+            <span className="block text-base font-semibold tracking-tight">Semester settings</span>
+            <span className="block text-sm text-slate-600 dark:text-slate-300">
+              Dates, weekly schedule, research rules and progress weights
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="text-slate-500 transition-transform group-open:rotate-180"
+          >
+            ▾
+          </span>
+        </summary>
+        <div className="border-t border-slate-200 p-4 sm:p-5 dark:border-slate-800">
+          {saved && (
+            <div className="mb-3">
+              <Alert tone="success">Settings saved.</Alert>
             </div>
           )}
-          <Button
-            variant="danger"
-            className="mt-3"
-            busy={close.isPending}
-            onClick={() => {
-              if (
-                window.confirm(
-                  `Close "${s.name}"? Everything in it becomes read-only. This cannot be undone.`,
-                )
-              )
-                close.mutate();
+          {s.status === 'closed' && (
+            <div className="mb-3">
+              <Alert>This semester is closed and read-only.</Alert>
+            </div>
+          )}
+          <SemesterForm
+            key={s.updated_at}
+            initial={formFromSemester(s)}
+            submitLabel="Save settings"
+            readOnly={readOnly}
+            onSubmit={async (values) => {
+              setSaved(false);
+              await updateSemester(s.id, settingsPayload(values));
+              await invalidate();
+              setSaved(true);
             }}
-          >
-            Close semester
-          </Button>
-        </Card>
-      )}
+          />
+        </div>
+      </details>
 
-      <h2 className="mb-3 mt-8 text-lg font-semibold">Settings</h2>
-      {saved && (
-        <div className="mb-3">
-          <Alert tone="success">Settings saved.</Alert>
+      {canConfigure && s.status === 'active' && (
+        <div className="mt-6">
+          <Card title="Close semester">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Closing makes the whole semester read-only. This cannot be undone.
+            </p>
+            {close.error && (
+              <div className="mt-3">
+                <Alert tone="error">{close.error.message}</Alert>
+              </div>
+            )}
+            <Button
+              variant="danger"
+              className="mt-3"
+              busy={close.isPending}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Close "${s.name}"? Everything in it becomes read-only. This cannot be undone.`,
+                  )
+                )
+                  close.mutate();
+              }}
+            >
+              Close semester
+            </Button>
+          </Card>
         </div>
       )}
-      {s.status === 'closed' && (
-        <div className="mb-3">
-          <Alert>This semester is closed and read-only.</Alert>
-        </div>
-      )}
-      <SemesterForm
-        key={s.updated_at}
-        initial={formFromSemester(s)}
-        submitLabel="Save settings"
-        readOnly={readOnly}
-        onSubmit={async (values) => {
-          setSaved(false);
-          await updateSemester(s.id, settingsPayload(values));
-          await invalidate();
-          setSaved(true);
-        }}
-      />
     </div>
   );
 }

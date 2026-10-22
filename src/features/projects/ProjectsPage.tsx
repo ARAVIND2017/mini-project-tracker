@@ -218,8 +218,8 @@ function ProjectsPageContent() {
               : 'No projects match these filters.'}
           </p>
         ) : (
-          <div className="-mx-4 overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+          <div className="-mx-4 overflow-x-auto sm:-mx-5" data-scroll-x>
+            <table className="data-table">
               <thead className="text-xs uppercase text-slate-500 dark:text-slate-400">
                 <tr>
                   <th className="px-4 py-2 font-medium">Slot</th>
@@ -239,7 +239,7 @@ function ProjectsPageContent() {
                     className={p.roster_status === 'withdrawn' ? 'text-slate-400' : ''}
                   >
                     <td className="px-4 py-2 align-top">{p.slot_no}</td>
-                    <td className="px-4 py-2 align-top">
+                    <td className="min-w-52 px-4 py-2 align-top">
                       <Link
                         to={`/projects/${p.id}`}
                         className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"

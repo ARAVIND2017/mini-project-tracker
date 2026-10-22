@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/z';
 
 /** Mirrors the Supabase Auth policy: at least 10 characters, with letters and digits. */
 export const passwordSchema = z

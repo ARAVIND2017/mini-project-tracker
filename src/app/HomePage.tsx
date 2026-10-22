@@ -56,7 +56,7 @@ export function HomePage() {
               <li key={m.membership_id}>
                 <Link
                   to={`/semesters/${m.semester_id}`}
-                  className="block rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-400 dark:border-slate-800 dark:bg-slate-900"
+                  className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-400 dark:border-slate-800 dark:bg-slate-900"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">{m.semester_name}</span>
@@ -72,18 +72,23 @@ export function HomePage() {
         </div>
       )}
 
-      <h2 className="mb-3 mt-8 text-lg font-semibold">Project lifecycle</h2>
-      <ol className="grid gap-2 sm:grid-cols-3">
-        {STAGES.map((stage) => (
-          <li
-            key={stage.key}
-            className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-800 dark:bg-slate-900"
-          >
-            <span className="text-slate-500 dark:text-slate-400">Stage {stage.no}</span>
-            <div className="font-medium">{stage.name}</div>
-          </li>
-        ))}
-      </ol>
+      {/* Students see their own journey on the project card instead. */}
+      {!ctx.memberships.some((m) => m.role === 'student') && (
+        <>
+          <h2 className="mb-3 mt-8 text-lg font-semibold">Project lifecycle</h2>
+          <ol className="grid gap-2 sm:grid-cols-3">
+            {STAGES.map((stage) => (
+              <li
+                key={stage.key}
+                className="rounded-xl border border-slate-200 bg-white shadow-sm p-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+              >
+                <span className="text-slate-500 dark:text-slate-400">Stage {stage.no}</span>
+                <div className="font-medium">{stage.name}</div>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
     </div>
   );
 }

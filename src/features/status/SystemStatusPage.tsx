@@ -8,7 +8,7 @@ export function SystemStatusPage() {
   return (
     <section className="max-w-2xl">
       <h1 className="text-2xl font-semibold">System status</h1>
-      <dl className="mt-6 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+      <dl className="mt-6 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
         <div className="p-4">
           <dt className="text-sm text-slate-500 dark:text-slate-400">Configuration</dt>
           <dd className="mt-1">

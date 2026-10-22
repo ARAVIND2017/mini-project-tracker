@@ -226,7 +226,8 @@ test('final stages and panel sign-off (journey 6)', async ({ browser, request })
     }
     await expect(checklist(guide).getByRole('button', { name: 'Verify' })).toHaveCount(0);
     await signOff(guide, 'Approve', 'Clear contribution beyond the original paper.');
-    await expect(guide.getByText('no decision yet')).toBeVisible();
+    // Wait for the summary to refresh: only the other member is still undecided.
+    await expect(guide.getByText('no decision yet')).toHaveCount(1);
 
     await signIn(member, MEMBER);
     await open(member, 'final');

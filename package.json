@@ -25,6 +25,7 @@
     "test:e2e:prod": "VITE_SUPABASE_URL=http://localhost:54321 VITE_SUPABASE_PUBLISHABLE_KEY=$(cat .local-stack/anon.jwt) CSP_EXTRA_CONNECT='http://localhost:54321 ws://localhost:54321' pnpm build && (node scripts/serve-dist.mjs 4173 & sleep 1; LOCAL_ANON_KEY=$(cat .local-stack/anon.jwt) PW_BASE_URL=http://localhost:4173 playwright test; s=$?; pkill -f serve-dist.mjs; exit $s)"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "5.2.6",
     "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-query": "^5.104.3",
     "react": "^19.3.1",

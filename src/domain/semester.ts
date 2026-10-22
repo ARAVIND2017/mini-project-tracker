@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/z';
 import { DEFAULT_STAGE_WEIGHTS, ENUMS, SEMESTER_DEFAULTS, type StageKey } from './constants';
 
 export const WEEKDAYS = [

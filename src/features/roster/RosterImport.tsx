@@ -149,7 +149,7 @@ export function RosterImport({
           )}
           {report.rows.length > 0 && (
             <div className="-mx-4 max-h-80 overflow-auto">
-              <table className="min-w-full text-left text-sm">
+              <table className="data-table">
                 <thead className="sticky top-0 bg-white text-xs uppercase text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                   <tr>
                     <th className="px-4 py-1 font-medium">Slot</th>

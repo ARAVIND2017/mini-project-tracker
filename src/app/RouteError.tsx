@@ -1,13 +1,20 @@
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
+import { LogoMark } from '@/components/icons';
 
 function ErrorMessage({ title, body }: { title: string; body: string }) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold">{title}</h1>
-      <p className="mt-2 text-slate-600 dark:text-slate-300">{body}</p>
-      <Link to="/" className="mt-6 inline-block text-blue-700 underline dark:text-blue-300">
-        Back to home
-      </Link>
+    <div className="flex min-h-screen items-center justify-center px-4 py-16">
+      <div className="max-w-md text-center">
+        <LogoMark className="mx-auto h-10 w-10" />
+        <h1 className="mt-6 text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">{body}</p>
+        <Link
+          to="/"
+          className="mt-6 inline-flex items-center rounded-lg bg-blue-700 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-800 dark:bg-blue-600"
+        >
+          Back to home
+        </Link>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/lib/z';
 import { ENUMS } from './constants';
 
 /** Shape returned by the app_my_context() RPC. Parsed, never trusted blindly. */

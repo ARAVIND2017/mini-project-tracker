@@ -77,14 +77,23 @@ function KpiTile({
   return (
     <Link
       to={to}
-      className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-blue-400 dark:border-slate-800 dark:bg-slate-900"
+      className={`group relative block overflow-hidden rounded-xl border bg-white p-4 shadow-sm transition-colors hover:border-blue-400 dark:bg-slate-900 ${
+        tone === 'warn'
+          ? 'border-amber-300 dark:border-amber-700'
+          : 'border-slate-200 dark:border-slate-800'
+      }`}
     >
+      {tone === 'warn' && (
+        <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-amber-500" />
+      )}
       <span
-        className={`block text-2xl font-semibold tabular-nums ${tone === 'warn' ? 'text-amber-800 dark:text-amber-300' : ''}`}
+        className={`block text-2xl font-semibold tracking-tight tabular-nums ${tone === 'warn' ? 'text-amber-800 dark:text-amber-300' : ''}`}
       >
         {value}
       </span>
-      <span className="block text-sm text-slate-600 dark:text-slate-300">{label}</span>
+      <span className="mt-0.5 block text-sm text-slate-600 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
+        {label}
+      </span>
     </Link>
   );
 }
@@ -162,16 +171,16 @@ function OverallDashboard({ semesterId, rows: all }: { semesterId: string; rows:
               <li key={s.key}>
                 <Link
                   to={projectsLink(semesterId, { stage: s.key })}
-                  className="grid grid-cols-[minmax(0,11rem)_1fr_2rem] items-center gap-2 text-sm hover:underline"
+                  className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md py-0.5 text-sm hover:underline sm:grid sm:grid-cols-[minmax(0,15rem)_1fr_2rem]"
                 >
-                  <span className="truncate">{s.label}</span>
-                  <span className="h-3 rounded bg-slate-100 dark:bg-slate-800">
+                  <span className="min-w-0 flex-1">{s.label}</span>
+                  <span className="order-last h-2.5 w-full rounded-full bg-slate-100 sm:order-none dark:bg-slate-800">
                     <span
-                      className="block h-3 rounded bg-blue-700 dark:bg-blue-400"
+                      className="block h-2.5 rounded-full bg-blue-700 dark:bg-blue-400"
                       style={{ width: `${(s.count / maxStage) * 100}%` }}
                     />
                   </span>
-                  <span className="text-right tabular-nums">{s.count}</span>
+                  <span className="font-medium tabular-nums sm:text-right">{s.count}</span>
                 </Link>
               </li>
             ))}
@@ -234,7 +243,7 @@ function OverallDashboard({ semesterId, rows: all }: { semesterId: string; rows:
       </div>
 
       <Card title="Domains × stages">
-        <div className="-mx-4 overflow-x-auto">
+        <div className="-mx-4 overflow-x-auto sm:-mx-5" data-scroll-x>
           <table className="min-w-full text-center text-sm">
             <caption className="sr-only">Number of projects in each domain at each stage</caption>
             <thead className="text-xs text-slate-500 dark:text-slate-400">
@@ -306,8 +315,8 @@ function OverallDashboard({ semesterId, rows: all }: { semesterId: string; rows:
         ) : workload.error ? (
           <Alert tone="error">{workload.error.message}</Alert>
         ) : (
-          <div className="-mx-4 overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+          <div className="-mx-4 overflow-x-auto sm:-mx-5" data-scroll-x>
+            <table className="data-table">
               <thead className="text-xs uppercase text-slate-500 dark:text-slate-400">
                 <tr>
                   <th className="px-4 py-2 font-medium">Faculty</th>
