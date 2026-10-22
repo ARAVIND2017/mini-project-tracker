@@ -271,7 +271,7 @@ export function AppShell() {
     <div className="min-h-screen lg:pl-64">
       <a
         href="#main"
-        className="sr-only z-50 rounded-md bg-white px-3 py-2 text-sm font-medium shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-50 rounded-md bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
         Skip to content
       </a>

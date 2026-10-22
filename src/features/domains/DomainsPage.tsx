@@ -280,7 +280,11 @@ function DomainCard({
         <ul className="mt-1 space-y-1 text-sm">
           {criteria.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center gap-2">
-              <span className={c.is_active ? '' : 'text-slate-400 line-through'}>{c.name}</span>
+              <span
+                className={c.is_active ? '' : 'text-slate-500 line-through dark:text-slate-400'}
+              >
+                {c.name}
+              </span>
               {canEdit && (
                 <button
                   type="button"

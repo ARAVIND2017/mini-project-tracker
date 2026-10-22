@@ -84,9 +84,7 @@ export function NotificationsPage() {
 function NotificationItem({ n, onOpen }: { n: Notification; onOpen: () => void }) {
   const unread = !n.read_at;
   return (
-    <li
-      className={`flex flex-wrap items-start justify-between gap-2 py-3 ${unread ? '' : 'opacity-75'}`}
-    >
+    <li className="flex flex-wrap items-start justify-between gap-2 py-3">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
           {unread && (

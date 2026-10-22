@@ -186,10 +186,17 @@ function RosterPageContent() {
                       }
                     />
                   ) : (
-                    <tr key={s.id} className={s.status === 'withdrawn' ? 'text-slate-400' : ''}>
+                    <tr
+                      key={s.id}
+                      className={
+                        s.status === 'withdrawn' ? 'text-slate-500 dark:text-slate-400' : ''
+                      }
+                    >
                       <td className="px-4 py-2">{s.slot_no}</td>
                       <td className="px-4 py-2">
-                        {s.full_name ?? <em className="text-slate-400">empty</em>}
+                        {s.full_name ?? (
+                          <em className="text-slate-500 dark:text-slate-400">empty</em>
+                        )}
                         {s.email && (
                           <div className="text-xs text-slate-500 dark:text-slate-400">
                             {s.email}

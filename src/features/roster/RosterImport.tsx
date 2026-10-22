@@ -165,7 +165,9 @@ export function RosterImport({
                     <tr key={r.slot_no}>
                       <td className="px-4 py-1">{r.slot_no}</td>
                       <td className="px-4 py-1">
-                        {r.full_name ?? <em className="text-slate-400">empty slot</em>}
+                        {r.full_name ?? (
+                          <em className="text-slate-500 dark:text-slate-400">empty slot</em>
+                        )}
                       </td>
                       <td className="px-4 py-1">{r.institution_id ?? '—'}</td>
                       <td className="px-4 py-1">{r.email ?? '—'}</td>

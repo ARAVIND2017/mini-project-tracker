@@ -195,7 +195,7 @@ export function ListField({
               <button
                 type="button"
                 aria-label={`Remove entry ${i + 1} from ${label.toLowerCase()}`}
-                className="rounded-md px-2 text-sm text-slate-500 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:ring-slate-700 dark:hover:bg-slate-800"
+                className="rounded-md px-2 text-sm text-slate-500 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800"
                 onClick={() => onChange(items.filter((_, j) => j !== i))}
               >
                 ✕

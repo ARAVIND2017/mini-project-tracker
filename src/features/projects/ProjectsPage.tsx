@@ -236,7 +236,9 @@ function ProjectsPageContent() {
                 {rows.map((p) => (
                   <tr
                     key={p.id}
-                    className={p.roster_status === 'withdrawn' ? 'text-slate-400' : ''}
+                    className={
+                      p.roster_status === 'withdrawn' ? 'text-slate-500 dark:text-slate-400' : ''
+                    }
                   >
                     <td className="px-4 py-2 align-top">{p.slot_no}</td>
                     <td className="min-w-52 px-4 py-2 align-top">

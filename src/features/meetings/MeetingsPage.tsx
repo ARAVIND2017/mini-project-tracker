@@ -278,7 +278,9 @@ function MeetingForm({
                   }
                 />
                 {m.profile?.full_name ?? 'Member'}
-                {m.role === 'student' && <span className="text-xs text-slate-500">(student)</span>}
+                {m.role === 'student' && (
+                  <span className="text-xs text-slate-500 dark:text-slate-400">(student)</span>
+                )}
               </label>
             ))}
           </div>

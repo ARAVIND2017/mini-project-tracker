@@ -1,4 +1,5 @@
 /// <reference lib="dom" />
+import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { signIn, sql, sqlAs } from './helpers';
@@ -6,7 +7,8 @@ import { signIn, sql, sqlAs } from './helpers';
 // Visual QA tour (run with VISUAL_TOUR=1 after the journeys have seeded the LOCAL stack).
 // Opens every main screen as each role at desktop, tablet and phone widths, takes
 // screenshots, and records console errors, page errors, failed requests and horizontal
-// overflow into <VISUAL_OUT>/report.json. Local fictional demo data only.
+// overflow into <VISUAL_OUT>/report.json, plus axe colour-contrast failures (so a dark-mode
+// run, PW_COLOR_SCHEME=dark, checks contrast on every screen). Local fictional demo data only.
 test.skip(!process.env.VISUAL_TOUR, 'visual tour only on request (VISUAL_TOUR=1)');
 test.setTimeout(15 * 60_000);
 
@@ -20,7 +22,7 @@ const WIDTHS = [
 interface Finding {
   screen: string;
   width: string;
-  kind: 'console' | 'pageerror' | 'request' | 'overflow' | 'blank';
+  kind: 'console' | 'pageerror' | 'request' | 'overflow' | 'blank' | 'contrast';
   detail: string;
 }
 const findings: Finding[] = [];
@@ -60,6 +62,7 @@ async function visit(page: Page, role: string, screen: string, path: string) {
         .slice(0, 3)
         .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)}`),
     }));
+    const contrast = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
     page.off('console', onConsole);
     page.off('pageerror', onPageError);
     page.off('response', onResponse);
@@ -78,12 +81,18 @@ async function visit(page: Page, role: string, screen: string, path: string) {
         kind: 'overflow',
         detail: `${state.overflow}px: ${state.offenders.join(', ')}`,
       });
+    for (const v of contrast.violations)
+      for (const n of v.nodes)
+        findings.push({
+          screen,
+          width: w.name,
+          kind: 'contrast',
+          detail: `${n.target.join(' ')}: ${n.any[0]?.message ?? v.help}`,
+        });
     if (state.text < 20)
       findings.push({ screen, width: w.name, kind: 'blank', detail: `${state.text} characters` });
-    if (w.name !== 'tablet') {
-      const file = `${screen.toLowerCase().replace(/[^a-z0-9]+/g, '-')}--${w.name}.png`;
-      await page.screenshot({ path: `${OUT}/${file}`, fullPage: true });
-    }
+    const file = `${screen.toLowerCase().replace(/[^a-z0-9]+/g, '-')}--${w.name}.png`;
+    await page.screenshot({ path: `${OUT}/${file}`, fullPage: true });
   }
 }
 
@@ -201,6 +210,48 @@ test('visual tour of every screen and role', async ({ browser }) => {
   await expect(student.getByRole('heading', { name: /^Welcome,/ })).toBeVisible();
   await student.goForward();
   await expect(student).toHaveURL(/view=tasks/);
+
+  // States that a plain page visit does not show: empty list, form error, keyboard focus,
+  // loading placeholder.
+  await visit(student, 'Student', 'Student notifications', '/notifications');
+  for (const w of [WIDTHS[0], WIDTHS[2]]) {
+    await anon.setViewportSize({ width: w.width, height: w.height });
+    await anon.goto('/login');
+    await anon.getByLabel('Email').fill('demo.hod@example.test');
+    await anon.getByLabel('Password').fill('not-the-password');
+    await anon.getByRole('button', { name: 'Sign in' }).click();
+    await expect(anon.getByRole('alert')).toBeVisible();
+    await anon.screenshot({ path: `${OUT}/state-sign-in-error--${w.name}.png` });
+  }
+  await hod.setViewportSize({ width: 1440, height: 900 });
+  await hod.goto(`/semesters/${sem7}/projects`);
+  await expect(hod.getByText(/Loading/)).toHaveCount(0);
+  // The skip link is only visible when focused, so check its contrast then.
+  await hod.keyboard.press('Tab');
+  await expect(hod.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  const skip = await new AxeBuilder({ page: hod })
+    .include('a[href="#main"]')
+    .withRules(['color-contrast'])
+    .analyze();
+  expect(skip.violations).toEqual([]);
+  await hod.screenshot({
+    path: `${OUT}/state-skip-link--desktop.png`,
+    clip: { x: 0, y: 0, width: 600, height: 140 },
+  });
+  for (let i = 0; i < 3; i++) await hod.keyboard.press('Tab');
+  await hod.screenshot({ path: `${OUT}/state-keyboard-focus--desktop.png` });
+  await hod.getByRole('combobox').first().focus();
+  await hod.screenshot({ path: `${OUT}/state-input-focus--desktop.png` });
+  const slow = await (await browser.newContext()).newPage();
+  await signIn(slow, 'demo7.student@example.test');
+  await slow.route('**/rest/v1/**', async (r) => {
+    await new Promise((res) => setTimeout(res, 4000));
+    await r.continue().catch(() => {});
+  });
+  await slow.goto(`/projects/${p301}`);
+  await expect(slow.getByText('Loading…').first()).toBeAttached();
+  await slow.screenshot({ path: `${OUT}/state-loading--desktop.png` });
+  await slow.unrouteAll({ behavior: 'ignoreErrors' });
 
   writeFileSync(`${OUT}/report.json`, JSON.stringify({ screens, findings }, null, 2));
   console.log(

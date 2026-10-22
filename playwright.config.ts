@@ -13,6 +13,8 @@ export default defineConfig({
     // its security headers (scripts/serve-dist.mjs); the dev server is then not started.
     baseURL: process.env.PW_BASE_URL ?? 'http://localhost:5173',
     viewport: { width: 1280, height: 860 },
+    // PW_COLOR_SCHEME=dark runs every spec with the operating system set to dark mode.
+    colorScheme: process.env.PW_COLOR_SCHEME === 'dark' ? 'dark' : 'light',
     launchOptions: { executablePath: process.env.PW_CHROMIUM ?? undefined },
   },
   webServer: process.env.PW_BASE_URL
